@@ -45,6 +45,20 @@ return [
     */
 
     'connections' => [
+        // General DB config available
+        'testing' => [
+            'driver'   => env('TEST_DB_DRIVER', 'pgsql'),
+            'host'     => env('TEST_DB_HOST', 'localhost'),
+            'database' => env('TEST_DB_DATABASE', 'forge_dev'),
+            'username' => env('TEST_DB_USERNAME', 'forge'),
+            'password' => env('TEST_DB_PASSWORD', ''),
+            'charset'  => 'utf8',
+            'prefix'   => '',
+            'schema'   => 'public',
+            'collation' => 'utf8_unicode_ci',
+            'prefix'   => env('TEST_DB_PREFIX', ''),
+            'strict'    => false,
+        ],
 
         'sqlite' => [
             'driver'   => 'sqlite',

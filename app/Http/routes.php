@@ -10,7 +10,71 @@
 | and give it the controller to call when that URI is requested.
 |
 */
+// Home
+Route::get('/', ['as' => 'home',
+                 'middleware' => 'auth',
+                 'uses' => 'User\UserController@home']);
 
-Route::get('/', function () {
-    return view('welcome');
+// Auth routes...
+
+Route::get('/signin', ['as' => 'signin_get','uses' => 'Auth\AuthController@getLogin',]);
+Route::post('/signin', ['as' => 'signin_post', 'uses' => 'Auth\AuthController@postLogin',]);
+Route::get('/signout', ['as' => 'signout', 'uses' => 'Auth\AuthController@getLogout']);
+Route::get('/signup', ['as' => 'user::signup_get', 'uses' => 'User\UserController@getRegister']);
+Route::post('/signup', ['as' => 'user::signup_post', 'uses' => 'User\UserController@postRegister']);
+
+Route::get('/user/email/confirm/{email}/{token}', [
+    'as'   => 'user::email_confirmation_get',
+    'uses' => 'User\UserController@getEmailConfirmation',
+]);
+
+Route::group(['prefix' => 'user', 'middleware' => 'auth', 'as' => 'user::'], function () {
+    // Password reset link request and reset routes
+    Route::get('/password/email', [
+        'as'   => 'pw_reset_email_get',
+        'uses' => 'Auth\PasswordController@getEmail'
+    ]);
+    Route::post('/password/email', [
+        'as'   => 'pw_reset_email_post',
+        'uses' => 'Auth\PasswordController@postEmail'
+    ]);
+
+    Route::get('/password/reset/{token}', [
+        'as'   => 'pw_reset_get',
+        'uses' => 'Auth\PasswordController@getReset'
+    ]);
+    Route::post('/password/reset', [
+        'as'   => 'pw_reset_post',
+        'uses' => 'Auth\PasswordController@postReset',
+    ]);
+
+    // Update
+    Route::get('/update', [
+        'as'   => 'update_get',
+        'uses' => 'User\UserController@getUpdate',
+    ]);
+    Route::post('/update', [
+        'as'   => 'update_post',
+        'uses' => 'User\UserController@postUpdate',
+    ]);
+
+    // Email Update
+    Route::get('/update/email', [
+        'as'   => 'update_email_get',
+        'uses' => 'User\UserController@getUpdateEmail',
+    ]);
+    Route::post('/update/email', [
+        'as'   => 'update_email_post',
+        'uses' => 'User\UserController@postUpdateEmail',
+    ]);
+
+    // Password Update
+    Route::get('/update/password', [
+        'as'   => 'update_password_get',
+        'uses' => 'User\UserController@getUpdatePassword',
+    ]);
+    Route::post('/update/password', [
+        'as'   => 'update_password_post',
+        'uses' => 'User\UserController@postUpdatePassword',
+    ]);
 });

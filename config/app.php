@@ -1,6 +1,8 @@
 <?php
 
 return [
+    // Custom configurations:
+    'name' => 'Nugest',
 
     /*
     |--------------------------------------------------------------------------
@@ -145,6 +147,8 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
+        # Custom Service Providers
+        App\Providers\PasswordValidationServiceProvider::class,
     ],
 
     /*

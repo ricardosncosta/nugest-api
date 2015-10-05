@@ -1,0 +1,10 @@
+ul, ol {
+	padding: 0;
+	margin: 0;
+}
+#flash-messages ul, #error-messages ul { padding: 0; margin: 0; }
+#flash-messages li, #error-messages li { list-style: none; }
+
+#error-messages .alert {
+	padding: 5px;
+}

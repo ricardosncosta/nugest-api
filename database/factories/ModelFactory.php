@@ -12,10 +12,24 @@
 */
 
 $factory->define(App\User::class, function (Faker\Generator $faker) {
+    $dateTime = $faker->dateTimeThisYear();
     return [
-        'name' => $faker->name,
+        'first_name' => $faker->firstName('male'),
+        'last_name' => $faker->lastName('male'),
         'email' => $faker->email,
         'password' => bcrypt(str_random(10)),
         'remember_token' => str_random(10),
+        'created_at' => $dateTime,
+        'updated_at' => $dateTime
+    ];
+});
+
+$factory->define(App\UserEmailChange::class, function (Faker\Generator $faker) {
+    return [
+        'email' => $faker->email,
+        'token' => str_random(),
+        'confirmed' => false,
+        'created_at' => new DateTime(),
+        'updated_at' => new DateTime()
     ];
 });
