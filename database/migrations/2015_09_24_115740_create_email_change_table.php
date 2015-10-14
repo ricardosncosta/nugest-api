@@ -19,8 +19,8 @@ class CreateEmailChangeTable extends Migration
                   ->references('id')
                   ->on('users')
                   ->onDelete('cascade');
-            $table->string('email');
-            $table->string('token');
+            $table->string('email')->index();
+            $table->string('token')->index();
             $table->boolean('confirmed')->default(false);
             $table->timestamps();
         });
