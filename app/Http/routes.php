@@ -78,3 +78,27 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth', 'as' => 'user::'], fun
         'uses' => 'User\UserController@postUpdatePassword',
     ]);
 });
+
+// Dish routes
+Route::group(['prefix' => 'dish', 'middleware' => 'auth', 'as' => 'dish::'], function () {
+    // List (get) and delete (post)
+    Route::get('/', [
+        'as'   => 'list',
+        'uses' => 'Dish\DishController@getList',
+    ]);
+    Route::post('/', [
+        'as'   => 'list',
+        'uses' => 'Dish\DishController@postList',
+    ]);
+
+    // Create
+    Route::get('/create', [
+        'as'   => 'create_get',
+        'uses' => 'Dish\DishController@getCreate',
+    ]);
+    Route::post('/create', [
+        'as'   => 'create_post',
+        'uses' => 'Dish\DishController@postCreate',
+    ]);
+
+});

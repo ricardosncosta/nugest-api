@@ -24,6 +24,13 @@
 					</form>
                     @if (Auth::check())
 	    		        <li class="dropdown">
+	    		        	<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dish&nbsp;<span class="glyphicon glyphicon-cutlery"></span><span class="caret"></span></a>
+	    		        	<ul class="dropdown-menu">
+	    		        		<li><a href="{{ route('dish::list') }}">List</a></li>
+	    		        		<li><a href="{{ route('dish::create_get') }}">Create</a></li>
+	    		        	</ul>
+	    		        </li>
+	    		        <li class="dropdown">
 	    		        	<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ Auth::User()->email }}&nbsp;<span class="glyphicon glyphicon-user"></span><span class="caret"></span></a>
 	    		        	<ul class="dropdown-menu">
 	    		        		<li><a href="{{ route('home') }}">Home</a></li>
