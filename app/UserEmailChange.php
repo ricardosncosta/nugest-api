@@ -12,4 +12,11 @@ class UserEmailChange extends Model
      * @var string
      */
     protected $table = 'users_email_change';
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = ['user_id' ,'email', 'token', 'created_at'];
 }
