@@ -80,7 +80,7 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth', 'as' => 'user::'], fun
 });
 
 // Dish routes
-Route::group(['prefix' => 'dish', 'middleware' => 'auth', 'as' => 'dish::'], function () {
+Route::group(['prefix' => 'user/dishes', 'middleware' => 'auth', 'as' => 'dish::'], function () {
     // List (get) and delete (post)
     Route::get('/', [
         'as'   => 'list',
