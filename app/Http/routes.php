@@ -101,4 +101,13 @@ Route::group(['prefix' => 'user/dishes', 'middleware' => 'auth', 'as' => 'dish::
         'uses' => 'Dish\DishController@postCreate',
     ]);
 
+    // Update
+    Route::get('/update/{id}', [
+        'as'   => 'update_get',
+        'uses' => 'Dish\DishController@getUpdate',
+    ])->where('id', '[0-9]+');
+    Route::post('/update/{id}', [
+        'as'   => 'update_post',
+        'uses' => 'Dish\DishController@postUpdate',
+    ])->where('id', '[0-9]+');
 });

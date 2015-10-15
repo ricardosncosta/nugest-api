@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\Dish;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Http\Controllers\Controller;
 use Auth;
 use Validator;
 use App\Dish;
@@ -32,7 +33,7 @@ class DishController extends Controller
 	{
         $validator = Validator::make($request->all(), [
             'name'     => 'required|min:3|max:255',
-            'calories' => 'digits_between:0,5000',
+            'calories' => 'digits_between:1,4',
         ]);
 
 		if ($validator->fails()) {
@@ -47,7 +48,43 @@ class DishController extends Controller
 	        ]);
 
 			$this->setFlashMessage(
-				'success', 'Dish created!'
+				'success', 'Dish created.'
+			);
+		}
+
+		return redirect()->route('dish::list');
+	}
+
+	public function getUpdate(Request $request, $id)
+	{
+		try {
+			$dish = Dish::findOrFail($id);
+			return view('dish/update', ['dish' => $dish]);
+		} catch (ModelNotFoundException $e) {
+			abort(404, 'Item not found.');
+		}
+
+	}
+
+	public function postUpdate(Request $request, $id)
+	{
+        $validator = Validator::make($request->all(), [
+            'name'     => 'required|min:3|max:255',
+            'calories' => 'digits_between:1,4',
+        ]);
+
+		if ($validator->fails()) {
+			return redirect()->route('dish::update_get', ['id' => $id])
+						     ->withErrors($validator)
+						     ->withInput();
+		} else {
+			$dish = Dish::find($id);
+	        $dish->name = $request->input('name');
+	    	$dish->calories = $request->input('calories', null);
+			$dish->save();
+
+			$this->setFlashMessage(
+				'success', 'Dish updated.'
 			);
 		}
 

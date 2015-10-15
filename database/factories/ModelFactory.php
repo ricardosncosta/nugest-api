@@ -33,3 +33,10 @@ $factory->define(App\UserEmailChange::class, function (Faker\Generator $faker) {
         'updated_at' => new DateTime()
     ];
 });
+
+$factory->define(App\Dish::class, function (Faker\Generator $faker) {
+    return [
+        'name' => $faker->sentence(rand(1, 5)),
+        'calories' => rand(1, 2000),
+    ];
+});
