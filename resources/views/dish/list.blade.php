@@ -4,9 +4,11 @@
 
 @section('content')
     @if (count($dishes) > 0)
-        <ul class="list-group">
+        <ul class="list-group col-sm-offset-4 col-sm-4">
             @foreach ($dishes as $dish)
-                <li class="list-group-item">{{ $dish->name }}</li>
+                <li class="list-group-item">
+                    <a href="{{ route('dish::update_get', [ 'id' => $dish->id ]) }}">{{ $dish->name }}</a>
+                </li>
             @endforeach
         </ul>
     @else
