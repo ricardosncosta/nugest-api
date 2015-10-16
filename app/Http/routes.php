@@ -78,3 +78,39 @@ Route::group(['prefix' => 'user', 'middleware' => 'auth', 'as' => 'user::'], fun
         'uses' => 'User\UserController@postUpdatePassword',
     ]);
 });
+
+// Dish routes
+Route::group(['prefix' => 'user/dishes', 'middleware' => 'auth', 'as' => 'dish::'], function () {
+    // List (get) and delete (post)
+    Route::get('/', [
+        'as'   => 'list',
+        'uses' => 'Dish\DishController@getList',
+    ]);
+    Route::post('/', [
+        'as'   => 'list',
+        'uses' => 'Dish\DishController@postList',
+    ]);
+
+    // Create
+    Route::get('/create', [
+        'as'   => 'create_get',
+        'uses' => 'Dish\DishController@getCreate',
+    ]);
+    Route::post('/create', [
+        'as'   => 'create_post',
+        'uses' => 'Dish\DishController@postCreate',
+    ]);
+
+    // Update
+    Route::get('/update/{id}', [
+        'as' => 'update_get', 'uses' => 'Dish\DishController@getUpdate',
+    ])->where('id', '[0-9]+');
+    Route::post('/update/{id}', [
+        'as' => 'update_post', 'uses' => 'Dish\DishController@postUpdate',
+    ])->where('id', '[0-9]+');
+
+    // Delete
+    Route::get('/delete/{id}', [
+        'as' => 'delete_get', 'uses' => 'Dish\DishController@getDelete',
+    ])->where('id', '[0-9]+');
+});
