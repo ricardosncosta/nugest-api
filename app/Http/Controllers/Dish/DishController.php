@@ -25,7 +25,6 @@ class DishController extends Controller
 
 	public function getCreate()
 	{
-		// get user
 		return view('dish/create');
 	}
 
@@ -47,9 +46,7 @@ class DishController extends Controller
 	            'calories' => $request->input('calories', null),
 	        ]);
 
-			$this->setFlashMessage(
-				'success', 'Dish created.'
-			);
+			$this->setFlashMessage('success', 'Dish created.');
 		}
 
 		return redirect()->route('dish::list');
@@ -63,7 +60,6 @@ class DishController extends Controller
 		} catch (ModelNotFoundException $e) {
 			abort(404, 'Item not found.');
 		}
-
 	}
 
 	public function postUpdate(Request $request, $id)
@@ -83,12 +79,23 @@ class DishController extends Controller
 	    	$dish->calories = $request->input('calories', null);
 			$dish->save();
 
-			$this->setFlashMessage(
-				'success', 'Dish updated.'
-			);
+			$this->setFlashMessage('success', 'Dish updated.');
 		}
 
 		return redirect()->route('dish::list');
+	}
+
+	// Ajax action
+	public function getDelete(Request $request, $id)
+	{
+		try {
+			$dish = Dish::findOrFail($id);
+			$dish->delete();
+
+			return response()->json(['status' => 'success']);
+		} catch (ModelNotFoundException $e) {
+			abort(404, 'Item not found.');
+		}
 	}
 
 }

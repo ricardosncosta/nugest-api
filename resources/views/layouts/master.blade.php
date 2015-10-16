@@ -44,5 +44,9 @@
         </div>
 
         @include('layouts.partials.footer')
+
+        <!-- Extra javascripts -->
+        @section('extrajavascripts')
+        @show
     </body>
 </html>

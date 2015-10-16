@@ -103,11 +103,14 @@ Route::group(['prefix' => 'user/dishes', 'middleware' => 'auth', 'as' => 'dish::
 
     // Update
     Route::get('/update/{id}', [
-        'as'   => 'update_get',
-        'uses' => 'Dish\DishController@getUpdate',
+        'as' => 'update_get', 'uses' => 'Dish\DishController@getUpdate',
     ])->where('id', '[0-9]+');
     Route::post('/update/{id}', [
-        'as'   => 'update_post',
-        'uses' => 'Dish\DishController@postUpdate',
+        'as' => 'update_post', 'uses' => 'Dish\DishController@postUpdate',
+    ])->where('id', '[0-9]+');
+
+    // Delete
+    Route::get('/delete/{id}', [
+        'as' => 'delete_get', 'uses' => 'Dish\DishController@getDelete',
     ])->where('id', '[0-9]+');
 });

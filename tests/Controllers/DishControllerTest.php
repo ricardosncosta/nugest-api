@@ -132,4 +132,40 @@ class DishControllerTest extends TestCase
         ]);
     }
 
+    /**
+     * Test dish removal throws 404 when doesn't exist
+     *
+     * @return void
+     */
+    public function testDishDeletionThrows404WhenNotFound()
+    {
+        $id = 0;
+        $user = factory(User::class)->create();
+        $this->actingAs($user)
+             ->call('GET', '/user/dishes/delete/1');
+
+        $this->assertResponseStatus(404);
+        $this->notSeeInDatabase('dishes', ['id' => $id]);
+    }
+
+    /**
+     * Test dish removal
+     *
+     * @return void
+     */
+    public function testDishDeletion()
+    {
+        $user = factory(User::class)->create();
+        $user->save();
+        $dish = factory(Dish::class)->make(['user_id' => $user->id]);
+        $dish->save();
+        $this->seeInDatabase('dishes', ['id' => $dish->id]);
+
+        $this->actingAs($user)
+             ->call('GET', route('dish::delete_get', ['id' => $dish->id]));
+        $this->seeJson(['status' => 'success']);
+
+        $this->notSeeInDatabase('dishes', ['id' => $dish->id]);
+    }
+
 }
