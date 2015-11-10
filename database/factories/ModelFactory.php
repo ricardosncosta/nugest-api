@@ -40,3 +40,10 @@ $factory->define(App\Dish::class, function (Faker\Generator $faker) {
         'calories' => rand(1, 2000),
     ];
 });
+
+$factory->define(App\Meal::class, function (Faker\Generator $faker) {
+    return [
+        'created_at' => new DateTime(),
+        'updated_at' => new DateTime()
+    ];
+});
