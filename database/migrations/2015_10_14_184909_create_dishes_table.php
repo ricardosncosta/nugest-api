@@ -14,8 +14,8 @@ class CreateDishesTable extends Migration
     {
         Schema::create('dishes', function (Blueprint $table) {
             $table->increments('id'); // Default
-            $table->integer('user_id')->unsigned();
-            $table->foreign('user_id')
+            $table->integer('user_id')->unsigned()
+                  ->foreign('user_id')
                   ->references('id')
                   ->on('users')
                   ->onDelete('cascade');
