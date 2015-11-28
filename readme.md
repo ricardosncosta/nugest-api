@@ -2,6 +2,9 @@
 A basic web menu suggester written in PHP and Laravel 5.1. It uses machine learning to suggest dishes based on past experiences.
 
 ### Notes
+#### app/[Meal](https://github.com/ricardosncosta/nugest/blob/master/app/Meal.php)
+Recommendations are calculated based on a month worth of meals (30 days x 2 meals = 60 meals), having preference for the most consumed dish(es) while trying not to repeat any of last meal's dish (7 days x 2 meals = 14 meals). If all dishes are repeated then the least used will be recommended in order to create some balance between most/less used dishes. Null is returned if no meals are found (usually due to lack of data to compute).
+
 #### app/Http/Controllers/[Controller](https://github.com/ricardosncosta/nugest/blob/master/app/Http/Controllers/Controller.php)
 A setFlashMessage($type, $message) function was added to make it easier to set a message along with twitter's bootstrap .class-type, e.g.: `$this->setFlashMessage('danger', 'Oops! Something went wrong...');`
 
