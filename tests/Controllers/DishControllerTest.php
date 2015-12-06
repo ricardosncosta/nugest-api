@@ -87,10 +87,7 @@ class DishControllerTest extends TestCase
     public function testDishUpdateValidation()
     {
         $user = factory(User::class)->create();
-        $user->save();
-
-        $dish = factory(Dish::class)->make(['user_id' => $user->id]);
-        $dish->save();
+        $dish = factory(Dish::class)->create(['user_id' => $user->id]);
 
         $this->actingAs($user)
              ->visit(route('dish::update_get', ['id' => $dish->id]))
@@ -111,10 +108,7 @@ class DishControllerTest extends TestCase
     public function testDishUpdate()
     {
         $user = factory(User::class)->create();
-        $user->save();
-
-        $dish = factory(Dish::class)->make(['user_id' => $user->id]);
-        $dish->save();
+        $dish = factory(Dish::class)->create(['user_id' => $user->id]);
 
         $this->actingAs($user)
              ->visit(route('dish::update_get', ['id' => $dish->id]))
@@ -156,9 +150,7 @@ class DishControllerTest extends TestCase
     public function testDishDeletion()
     {
         $user = factory(User::class)->create();
-        $user->save();
-        $dish = factory(Dish::class)->make(['user_id' => $user->id]);
-        $dish->save();
+        $dish = factory(Dish::class)->create(['user_id' => $user->id]);
         $this->seeInDatabase('dishes', ['id' => $dish->id]);
 
         $this->actingAs($user)

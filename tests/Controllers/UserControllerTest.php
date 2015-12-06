@@ -88,13 +88,11 @@ class UserControllerTest extends TestCase
     public function testUserEmailConfirmationWorks()
     {
         $user = factory(User::class)->create();
-        $emailChange = factory(UserEmailChange::class)->make([
+        $emailChange = factory(UserEmailChange::class)->create([
             'user_id'   => $user->id,
             'email'     => $user->email,
             'confirmed' => false
         ]);
-        $user->save();
-        $emailChange->save();
 
         // With invalid token and email
         $getParams = array('email' => $emailChange->email,'token' => 'WrongEmailToken');
@@ -154,7 +152,7 @@ class UserControllerTest extends TestCase
     public function testUserAccountUpdate()
     {
         $user = factory(User::class)->create();
-        $emailChange = factory(UserEmailChange::class)->make([
+        $emailChange = factory(UserEmailChange::class)->create([
             'user_id' => $user->id,
             'confirmed' => false
         ]);
@@ -214,7 +212,7 @@ class UserControllerTest extends TestCase
     {
         $curPw = "SomePassword";
         $newPw = '123456789abcdef';
-        $user = factory(User::class)->make(['password' => bcrypt($curPw)]);
+        $user = factory(User::class)->create(['password' => bcrypt($curPw)]);
 
         // Assert old password match
         $this->assertFalse(\Hash::check($newPw, $user->password));
@@ -241,13 +239,11 @@ class UserControllerTest extends TestCase
     public function testUserAccountEmailUpdateValidation()
     {
         $user = factory(User::class)->create();
-        $user->save();
-        $emailChange = factory(UserEmailChange::class)->make([
+        $emailChange = factory(UserEmailChange::class)->create([
             'user_id' => $user->id,
             'email' => $user->email,
             'confirmed' => true
         ]);
-        $emailChange->save();
 
         $newEmail = 'wrongemailaddress@com';
         $this->actingAs($user)
@@ -275,14 +271,12 @@ class UserControllerTest extends TestCase
     public function testUserAccountEmailUpdate()
     {
         $curPw = 'Sampl3P4ssword';
-        $user = factory(User::class)->make(['password' => bcrypt($curPw)]);
-        $user->save();
-        $emailChg = factory(UserEmailChange::class)->make([
+        $user = factory(User::class)->create(['password' => bcrypt($curPw)]);
+        $emailChg = factory(UserEmailChange::class)->create([
             'user_id'   => $user->id,
             'email'     => $user->email,
             'confirmed' => true
         ]);
-        $emailChg->save();
 
         $newEmail = 'validemail@somemail.com';
         $this->actingAs($user)

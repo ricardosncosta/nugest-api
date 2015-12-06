@@ -17,9 +17,7 @@ class MealTest extends TestCase
     private function batchDishCreate(User $user, $dishCount = 5)
     {
         for ($i=0; $i < $dishCount; $i++) {
-            $dish = factory(Dish::class)->make(['user_id' => $user->id]);
-            $dish->save();
-
+            $dish = factory(Dish::class)->create(['user_id' => $user->id]);
             $dishes[] = $dish;
         }
 
@@ -62,12 +60,11 @@ class MealTest extends TestCase
                     $changeDay = true;
                 }
 
-                $meal = factory(Meal::class)->make([
+                $meal = factory(Meal::class)->create([
                     'user_id'    => $user->id,
                     'dish_id'    => $dish->id,
                     'created_at' => $curDateTime
                 ]);
-                $meal->save();
                 $meals[] = $meal;
             }
 

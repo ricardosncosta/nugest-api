@@ -19,8 +19,7 @@ class MealControllerTest extends TestCase
     public function testMealCreation()
     {
         $user = factory(User::class)->create();
-        $dish = factory(Dish::class)->make(['user_id' => $user->id]);
-        $dish->save();
+        $dish = factory(Dish::class)->create(['user_id' => $user->id]);
 
         $this->actingAs($user)
              ->visit(route('meal::create_get'))
@@ -45,20 +44,15 @@ class MealControllerTest extends TestCase
         # User
         $user = factory(User::class)->create();
 
-        # Diash #1
-        $dish = factory(Dish::class)->make(['user_id' => $user->id]);
-        $dish->save();
-
-        # Diash #2
-        $dish2 = factory(Dish::class)->make(['user_id' => $user->id]);
-        $dish2->save();
+        # Diash #1 abd #2
+        $dish = factory(Dish::class)->create(['user_id' => $user->id]);
+        $dish2 = factory(Dish::class)->create(['user_id' => $user->id]);
 
         # Meal
-        $meal = factory(Meal::class)->make([
+        $meal = factory(Meal::class)->create([
             'user_id' => $user->id,
             'dish_id' => $dish->id
         ]);
-        $meal->save();
 
         // Test meal exists with $dish (#1) associated to it.
         $this->seeInDatabase('meals', [
