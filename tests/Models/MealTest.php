@@ -11,70 +11,22 @@ class MealTest extends TestCase
 {
     use DatabaseMigrations;
 
-    /**
-     * Dish creation helper method
-     */
-    private function batchDishCreate(User $user, $dishCount = 5)
+    public function setUp()
     {
-        for ($i=0; $i < $dishCount; $i++) {
-            $dish = factory(Dish::class)->create(['user_id' => $user->id]);
-            $dishes[] = $dish;
-        }
-
-        return $dishes;
+        parent::setUp();
+        $this->setupDb();
     }
 
     /**
-     * Meal creation helper method
-     *
-     * @param App/User object $user The User the meal will be associated with
-     * @param DateTime object $startDate The starting Date to create meals from.
-     *                                   If $startDate is one month ago it
-     *                                   will create a month of meals until now,
-     *                                   (Lunch and Dinner)
+     * Sets up DB data to test
      */
-    private function batchMealCreate(User $user, $dishes, DateTime $startDate)
+    public function setupDB()
     {
-        if (!is_array($dishes))
-            throw new Exception("Argument $dishes must be of type array.");
-
-        $dishCount = count($dishes) - 1;
-        $curDateTime = clone($startDate);
-        $dayDiff = $startDate->diff(new DateTime())->format('%a');
-        for ($i=0; $i <= $dayDiff; $i++) {
-            $changeDay = false;
-            while ($changeDay == false) {
-                // Get a mew dish, different than the one before, preferably
-                $dish = $dishes[rand(0, $dishCount)];
-                if (isset($meals[$i-1])) {
-                    while ($dish->id == $meals[$i-1]->dish_id) {
-                        $dish = $dishes[rand(0, $dishCount)];
-                    }
-                }
-
-                // Check time for lunch or dinner,
-                if ($curDateTime->format('H') == 0) {
-                    $curDateTime->setTime(rand(12,14), rand(0,60));
-                } else {
-                    $curDateTime->setTime(rand(19,21), rand(0,60));
-                    $changeDay = true;
-                }
-
-                $meal = factory(Meal::class)->create([
-                    'user_id'    => $user->id,
-                    'dish_id'    => $dish->id,
-                    'created_at' => $curDateTime
-                ]);
-                $meals[] = $meal;
-            }
-
-            $curDateTime->add(new \DateInterval('P1D'));
-            $curDateTime->setTime(0, 0);
-        }
-
-        return $meals;
+        Artisan::call('migrate');
+        Artisan::call('db:seed', array('--class' => 'UsersTableSeeder'));
+        Artisan::call('db:seed', array('--class' => 'DishesTableSeeder'));
+        Artisan::call('db:seed', array('--class' => 'MealsTableSeeder'));
     }
-
 
     /**
      * Test getLastMeals method
@@ -83,16 +35,10 @@ class MealTest extends TestCase
      */
     public function testGetLastMealsMethod()
     {
-        $user = factory(User::class)->create();
-        $dishes = $this->batchDishCreate($user, 8);
-
-        $startDate = new \DateTime();
-        $startDate->sub(new \DateInterval('P1M'));
-        $this->batchMealCreate($user, $dishes, $startDate);
+        $user = App\User::find(1);
 
         $mealModel = new Meal();
-        $meals = $mealModel->getLastMeals($user);
-        $this->assertCount(60, $meals);
+        $this->assertCount(60, $mealModel->getLastMeals($user));
     }
 
     /**
@@ -102,31 +48,21 @@ class MealTest extends TestCase
      */
     public function testGetRecommendationMethod()
     {
-        $user = factory(User::class)->create();
-        $dishes = $this->batchDishCreate($user, 16);
-
-        $startDate = new \DateTime();
-        $startDate->sub(new \DateInterval('P1M'));
-        $this->batchMealCreate($user, $dishes, $startDate);
+        $user = User::find(1);
 
         $mealModel = new Meal();
-        $lastMeals = $mealModel->getLastMeals($user);
-
         $recommendedDish = $mealModel->getRecommendation($user);
-        $this->assertTrue($recommendedDish instanceof Dish);
-
-        $unrepeatedMeals = array_slice($lastMeals->toArray(), count($lastMeals) - 14);
-        foreach ($unrepeatedMeals as $key => $dishId)
-            $this->assertTrue($dishId != $recommendedDish->id);
+        $this->assertEquals(4, $recommendedDish->id);
     }
 
     /**
-     * Test getRecommendation method
+     * Test getRecommendation method returns null if no results is found
      *
      * @return void
      */
     public function testGetRecommendationReturnsNullIfNoResulFound()
     {
+        // Create a new user, without any related dishes
         $user = factory(User::class)->create();
 
         $mealModel = new Meal();
@@ -136,7 +72,7 @@ class MealTest extends TestCase
 
     /**
      * Test getRecommendation() method signature throws error exception
-     *     *
+     *
      * @return void
      */
     public function testGetRecommendationMethodSignatureThrowsErrorExceptionWithNonIntValue()

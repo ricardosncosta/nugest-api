@@ -46,12 +46,14 @@ class Meal extends Model
             foreach ($sortedMeals as $dishId => $mealCount) {
                 $exists = false;
                 foreach ($lastMeals as $key => $lastDishId) {
-                    if ($dishId == $lastDishId)
+                    if ($dishId === (int) $lastDishId) {
                         $exists = true;
+                    }
                 }
 
-                if ($exists == false)
+                if ($exists === false) {
                     return Dish::find($dishId);
+                }
             }
 
             // If repeated, suggest the least eaten dish
