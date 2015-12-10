@@ -22,20 +22,22 @@
         $(document).ready(function() {
             $('.item-list li button').click(function() {
                 elmt = $(this);
-                $.ajax({
-                    url: '/user/dishes/delete/' + elmt.attr('item-id'),
-                    dataType: 'json',
-                })
-                .done(function(data) {
-                    if (data.status === 'success') {
-                        elmt.parent().slideUp();
-                    } else {
+                if (confirm("Remove dish '"+elmt.parent().find('a').text()+"'?")) {
+                    $.ajax({
+                        url: '/user/dishes/delete/' + elmt.attr('item-id'),
+                        dataType: 'json',
+                    })
+                    .done(function(data) {
+                        if (data.status === 'success') {
+                            elmt.parent().slideUp();
+                        } else {
+                            alert( "Something went wrong, please try again." );
+                        }
+                    })
+                    .fail(function() {
                         alert( "Something went wrong, please try again." );
-                    }
-                })
-                .fail(function() {
-                    alert( "Something went wrong, please try again." );
-                })
+                    })
+                }
             });
         });
     </script>
