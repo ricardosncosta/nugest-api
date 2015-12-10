@@ -3,6 +3,9 @@
 @section('page_title', 'Meal: List')
 
 @section('content')
+    <a href="{{ route('meal::create_get') }}">Add new meal?</a>
+    <p>&nbsp;</p>
+
     @if (count($meals) > 0)
         <ul class="item-list list-group col-sm-offset-4 col-sm-4">
             @foreach ($meals as $meal)
@@ -15,9 +18,6 @@
     @else
         No meals found.
     @endif
-
-    <p>&nbsp;</p>
-    <a href="{{ route('meal::create_get') }}">Add new meal?</a>
 @endsection
 
 @section('extrajavascripts')
