@@ -22,7 +22,8 @@
         $(document).ready(function() {
             $('.item-list li button').click(function() {
                 elmt = $(this);
-                if (confirm("Remove dish '"+elmt.parent().find('a').text()+"'?")) {
+                dishName = elmt.parent().find('a').text();
+                if (confirm("Remove dish '"+dishName+"'?")) {
                     $.ajax({
                         url: '/user/dishes/delete/' + elmt.attr('item-id'),
                         dataType: 'json',

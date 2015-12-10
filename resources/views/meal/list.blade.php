@@ -25,7 +25,8 @@
         $(document).ready(function() {
             $('.item-list li button').click(function() {
                 elmt = $(this);
-                if (confirm("Remove meal '"+elmt.parent().find('a').text()+"'?")) {
+                mealName = elmt.parent().find('a').text();
+                if (confirm("Remove meal '"+mealName+"'?")) {
                     $.ajax({
                         url: '/user/meals/delete/' + elmt.attr('item-id'),
                         dataType: 'json',
