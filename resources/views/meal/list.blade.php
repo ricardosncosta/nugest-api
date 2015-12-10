@@ -3,7 +3,7 @@
 @section('page_title', 'Meal: List')
 
 @section('content')
-    <a href="{{ route('meal::create_get') }}">Add new meal?</a>
+    <a href="{{ route('dish::create_get') }}" class="col-sm-offset-4 col-sm-4"><span class="glyphicon glyphicon-plus"></span>&nbsp;New Meal</a>
     <p>&nbsp;</p>
 
     @if (count($meals) > 0)
