@@ -31,7 +31,7 @@
 	    		        	</ul>
 	    		        </li>
 	    		        <li class="dropdown">
-	    		        	<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dish&nbsp;<span class="glyphicon glyphicon-cutlery"></span><span class="caret"></span></a>
+	    		        	<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dishes&nbsp;<span class="glyphicon glyphicon-cutlery"></span><span class="caret"></span></a>
 	    		        	<ul class="dropdown-menu">
 	    		        		<li><a href="{{ route('dish::list') }}">List</a></li>
 	    		        		<li><a href="{{ route('dish::create_get') }}">Create</a></li>
