@@ -11,7 +11,7 @@
             @foreach ($meals as $meal)
                 <li class="list-group-item">
                     <button item-id="{{ $meal->id }}" type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <a href="{{ route('meal::update_get', [ 'id' => $meal->id ]) }}">{{ $meal->dish->name }}@if ($meal->dish->calories != '') ({{ $meal->dish->calories }} kCal) @endif</a>
+                    <a href="{{ route('meal::update_get', [ 'id' => $meal->id ]) }}">{{ $meal->dish->name }}</a>
                 </li>
             @endforeach
         </ul>
