@@ -3,6 +3,9 @@
 @section('page_title', 'Dish: List')
 
 @section('content')
+    <a href="{{ route('dish::create_get') }}">Add new dish?</a>
+    <p>&nbsp;</p>
+
     @if (count($dishes) > 0)
         <ul class="item-list list-group col-sm-offset-4 col-sm-4">
             @foreach ($dishes as $dish)
@@ -13,7 +16,7 @@
             @endforeach
         </ul>
     @else
-        No dishes found. <a href="{{ route('dish::create_get') }}">Create one?</a>
+        No dishes found.
     @endif
 @endsection
 
