@@ -1,5 +1,5 @@
 <footer id="footer">
-	<nav class="navbar navbar-default navbar-inverse">
+	<nav class="navbar navbar-default navbar-inverse navbar-fixed-bottom">
 		<div class="container-fluid">
 			<div class="collapse navbar-collapse">
 				<ul class="nav navbar-nav navbar-right">
