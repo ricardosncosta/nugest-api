@@ -5,7 +5,7 @@
 <form method="POST" action="{{ route('dish::create_post')}}" class="form-horizontal">
     {!! csrf_field() !!}
 
-    <!-- First and Last name -->
+    <!-- Name -->
     <div class="form-group">
         <label for="name" class="col-sm-offset-2 col-sm-3 control-label">Name</label>
         <div class="col-sm-3">
