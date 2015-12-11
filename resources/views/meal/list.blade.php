@@ -7,19 +7,18 @@
     <p>&nbsp;</p>
     @if (count($meals) > 0)
         <ul class="item-list list-group col-sm-offset-4 col-sm-4">
-            {{-- */$mealCount = count($meals);/* --}}
+            <?php $mealCount = count($meals) ?>
             @for ($i = 0; $i < $mealCount; $i++)
-                @if (!isset($lastDate) OR $lastDate->format('d') > $meals[$i]->datetime->format('d'))
+                @if (!isset($meals[$i-1]) OR $meals[$i-1]->datetime->format('d') > $meals[$i]->datetime->format('d'))
                     <li class="list-group-item active">
                         {{ $meals[$i]->datetime->format('l, d') }}
                     </li>
                 @endif
 
                 <li class="list-group-item">
-                    <button item-id="{{ $meals[$i]->id }}" type="button" class="close glyphicon glyphicon-remove-circle" aria-label="Close"></button>
+                    <button item-id="{{ $meals[$i]->id }}" type="button" class="close glyphicon glyphicon-remove" aria-label="Close" aria-hidden="true"></button>
                     <a href="{{ route('meal::update_get', [ 'id' => $meals[$i]->id ]) }}">{{ $meals[$i]->datetime->format('H:i') }} - {{ $meals[$i]->dish->name }}</a>
                 </li>
-                {{-- */$lastDate = $meals[$i]->datetime/* --}}
             @endfor
         </ul>
     @else

@@ -10,7 +10,7 @@
         <ul class="item-list list-group col-sm-offset-4 col-sm-4">
             @foreach ($dishes as $dish)
                 <li class="list-group-item">
-                    <button item-id="{{ $dish->id }}" type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <button item-id="{{ $dish->id }}" type="button" class="close glyphicon glyphicon-remove" aria-label="Close" aria-hidden="true"></button>
                     <a href="{{ route('dish::update_get', [ 'id' => $dish->id ]) }}">{{ $dish->name }}</a>
                 </li>
             @endforeach
