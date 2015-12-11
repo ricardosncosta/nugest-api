@@ -18,7 +18,14 @@ class Meal extends Model
      *
      * @var array
      */
-    protected $fillable = ['user_id' ,'dish_id'];
+    protected $fillable = ['user_id' ,'dish_id', 'datetime'];
+
+    /**
+     * The attributes that stops created_at/updated_at automatic behavior.
+     *
+     * @var array
+     */
+    public $timestamps = false;
 
     /**
      * Get associated dish object
@@ -27,6 +34,12 @@ class Meal extends Model
      {
          return $this->belongsTo('App\Dish');
      }
+
+    // Applying date mutator
+    public function getDates()
+    {
+        return ['datetime'];
+    }
 
     /**
      * Get meal recomendation for user. Returns the most eaten meal that doesn't
@@ -77,7 +90,7 @@ class Meal extends Model
      public function getLastMeals(User $user, $mealCount = 60)
      {
         return self::where('user_id', $user->id)
-                   ->orderBy('created_at', 'DESC')
+                   ->orderBy('datetime', 'DESC')
                    ->take($mealCount) // A month worth of meals
                    ->lists('dish_id');
      }

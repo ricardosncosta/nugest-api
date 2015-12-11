@@ -3,17 +3,24 @@
 @section('page_title', 'Meal: List')
 
 @section('content')
-    <a href="{{ route('dish::create_get') }}" class="col-sm-offset-4 col-sm-4"><span class="glyphicon glyphicon-plus"></span>&nbsp;New Meal</a>
+    <a href="{{ route('meal::create_get') }}" class="col-sm-offset-4 col-sm-4"><span class="glyphicon glyphicon-plus"></span>&nbsp;New Meal</a>
     <p>&nbsp;</p>
-
     @if (count($meals) > 0)
         <ul class="item-list list-group col-sm-offset-4 col-sm-4">
-            @foreach ($meals as $meal)
+            {{-- */$mealCount = count($meals);/* --}}
+            @for ($i = 0; $i < $mealCount; $i++)
+                @if (!isset($lastDate) OR $lastDate->format('d') > $meals[$i]->datetime->format('d'))
+                    <li class="list-group-item active">
+                        {{ $meals[$i]->datetime->format('l, d') }}
+                    </li>
+                @endif
+
                 <li class="list-group-item">
-                    <button item-id="{{ $meal->id }}" type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <a href="{{ route('meal::update_get', [ 'id' => $meal->id ]) }}">{{ $meal->dish->name }}</a>
+                    <button item-id="{{ $meals[$i]->id }}" type="button" class="close glyphicon glyphicon-remove-circle" aria-label="Close"></button>
+                    <a href="{{ route('meal::update_get', [ 'id' => $meals[$i]->id ]) }}">{{ $meals[$i]->datetime->format('H:i') }} - {{ $meals[$i]->dish->name }}</a>
                 </li>
-            @endforeach
+                {{-- */$lastDate = $meals[$i]->datetime/* --}}
+            @endfor
         </ul>
     @else
         No meals found.

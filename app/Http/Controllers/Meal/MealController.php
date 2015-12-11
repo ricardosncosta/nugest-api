@@ -21,10 +21,11 @@ class MealController extends Controller
 	public function getList()
 	{
 		$dateTime = new \DateTime();
-		$lastWeekDate = $dateTime->sub(new \DateInterval('P7D'));
+		$lastWeekDate = $dateTime->sub(new \DateInterval('P3D'));
 
 		$meals = Meal::where('user_id', Auth::user()->id)
-					 ->where('created_at', '>=', $lastWeekDate)
+					 ->where('datetime', '>=', $lastWeekDate)
+					 ->orderBy('datetime', 'DESC')
 					 ->get();
 
 		return view('meal/list', ['meals' => $meals]);
@@ -48,15 +49,17 @@ class MealController extends Controller
 	 */
 	public function postCreate(Request $request)
 	{
-        $validator = Validator::make($request->all(), ['dish' => 'required']);
+        $validator = Validator::make($request->all(), ['dish' => 'required',
+													   'datetime' => 'required']);
 		if ($validator->fails()) {
 			return redirect()->route('meal::create_get')
 						     ->withErrors($validator)
 						     ->withInput();
 		} else {
 	        $meal = Meal::create([
-	            'user_id' => Auth::user()->id,
-	            'dish_id' => $request->input('dish'),
+	            'user_id'  => Auth::user()->id,
+	            'dish_id'  => $request->input('dish'),
+	            'datetime' => new \DateTime($request->input('datetime')),
 	        ]);
 
 			$this->setFlashMessage('success', 'Meal created.');
@@ -73,12 +76,9 @@ class MealController extends Controller
 	public function getUpdate(Request $request, $id)
 	{
 		try {
-			$meal = Meal::findOrFail($id);
-			$dishes = Dish::where('user_id', Auth::user()->id)->get();
-
 			return view('meal/update', [
-				'meal'   => $meal,
-				'dishes' => $dishes
+				'meal'   => Meal::findOrFail($id),
+				'dishes' => Dish::where('user_id', Auth::user()->id)->get()
 			]);
 		} catch (ModelNotFoundException $e) {
 			abort(404, 'Item not found.');
@@ -98,6 +98,7 @@ class MealController extends Controller
 		} else {
 			$meal = Meal::find($id);
 	        $meal->dish_id = $request->input('dish');
+	        $meal->datetime = new \DateTime($request->input('datetime'));
 			$meal->save();
 
 			$this->setFlashMessage('success', 'Meal updated.');
