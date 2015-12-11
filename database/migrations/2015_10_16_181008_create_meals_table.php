@@ -24,7 +24,7 @@ class CreateMealsTable extends Migration
                   ->references('id')
                   ->on('dishes')
                   ->onDelete('cascade');
-            $table->timestamps();
+            $table->timestamp('datetime');
         });
     }
 

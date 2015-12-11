@@ -43,7 +43,6 @@ $factory->define(App\Dish::class, function (Faker\Generator $faker) {
 
 $factory->define(App\Meal::class, function (Faker\Generator $faker) {
     return [
-        'created_at' => new DateTime(),
-        'updated_at' => new DateTime()
+        'datetime' => new DateTime(),
     ];
 });

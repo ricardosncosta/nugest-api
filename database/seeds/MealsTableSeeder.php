@@ -35,9 +35,9 @@ class MealsTableSeeder extends Seeder
             }
 
             factory(App\Meal::class)->create([
-                'user_id'    => 1,
-                'dish_id'    => $orderedDishes[$i],
-                'created_at' => $dateTime,
+                'user_id'  => 1,
+                'dish_id'  => $orderedDishes[$i],
+                'datetime' => $dateTime,
             ]);
 
             if ($changeDay === true) {

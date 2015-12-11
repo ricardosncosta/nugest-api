@@ -20,6 +20,12 @@
             </div>
         </div>
     @endif
+    <div class="form-group">
+        <label for="name" class="col-sm-offset-2 col-sm-3 control-label">Date &amp; Time</label>
+        <div class="col-sm-3">
+            <input type="text" name="datetime" id="datetime" placeholder="Time" class="form-control" value="{{ date('H:i') }}">
+        </div>
+    </div>
 
     <!-- Submit -->
     <div class="form-group">
