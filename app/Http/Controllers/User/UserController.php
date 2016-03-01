@@ -35,31 +35,6 @@ class UserController extends Controller
 		}
 	}
 
-	/**
-	 * Home page for authenticated users.
-	 *
-	 * @return Response
-	 */
-	public function home(Request $request)
-	{
-		$now = Date('H');
-		if ($now > 6 and $now < 12)
-			$greeting = 'Good morning';
-		elseif ($now > 12 and $now < 18)
-			$greeting = 'Good afternoon';
-		else
-			$greeting = 'Good evening';
-
-		// show the view and pass the user and greeting mode
-		return view('user.home', ['user' => Auth::user(), 'greeting' => $greeting]);
-	}
-
-	public function getRegister()
-	{
-		// get user
-		return view('user/register', ['user' => Auth::user()]);
-	}
-
 	public function postRegister(Request $request)
 	{
         $validator = Validator::make($request->all(), [
