@@ -150,7 +150,7 @@ Route::group(['prefix' => 'user/meals', 'middleware' => 'auth', 'as' => 'meal::'
  * API v0.1 routes
  */
 Route::group(['prefix' => '/api/0.1', 'middleware' => 'cors'], function () {
-    Route::get('/signin', ['uses' => 'User\UserController@signin']);
+    Route::get('/signin', ['uses' => 'User\UserController@getSignin']);
     Route::get('/signout', ['uses' => 'Auth\AuthController@getLogout']);
     Route::post('/signup', ['uses' => 'User\UserController@postRegister']);
 

@@ -14,7 +14,7 @@ use App\UserEmailChange;
 class UserController extends Controller
 {
 
-	public function signin(Request $request)
+	public function getSignin(Request $request)
 	{
 		$credentials = $request->only('email', 'password');
         $validator = Validator::make($credentials, [
