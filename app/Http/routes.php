@@ -16,7 +16,6 @@ Route::get('/', ['as' => 'home',
                  'uses' => 'User\UserController@home']);
 
 // Auth routes...
-
 Route::get('/signin', ['as' => 'signin_get','uses' => 'Auth\AuthController@getLogin',]);
 Route::post('/signin', ['as' => 'signin_post', 'uses' => 'Auth\AuthController@postLogin',]);
 Route::get('/signout', ['as' => 'signout', 'uses' => 'Auth\AuthController@getLogout']);
@@ -145,4 +144,68 @@ Route::group(['prefix' => 'user/meals', 'middleware' => 'auth', 'as' => 'meal::'
     Route::get('/delete/{id}', [
         'as' => 'delete_get', 'uses' => 'Meal\MealController@getDelete',
     ])->where('id', '[0-9]+');
+});
+
+/**
+ * API v0.1 routes
+ */
+Route::group(['prefix' => '/api/0.1', 'middleware' => 'cors'], function () {
+    Route::get('/signin', ['uses' => 'User\UserController@signin']);
+    Route::get('/signout', ['uses' => 'Auth\AuthController@getLogout']);
+    Route::post('/signup', ['uses' => 'User\UserController@postRegister']);
+
+    // User account
+    Route::group(['prefix' => 'user', 'middleware' => 'auth', 'as' => 'user::'], function () {
+        // Password reset link request and reset routes
+        Route::get('/password/email', ['uses' => 'Auth\PasswordController@getEmail']);
+        Route::post('/password/email', ['uses' => 'Auth\PasswordController@postEmail']);
+        Route::get('/password/reset/{token}', ['uses' => 'Auth\PasswordController@getReset']);
+        Route::post('/password/reset', ['uses' => 'Auth\PasswordController@postReset',]);
+
+        // Update
+        Route::get('/update', ['uses' => 'User\UserController@getUpdate']);
+        Route::post('/update', ['uses' => 'User\UserController@postUpdate']);
+
+        // Email Update
+        Route::get('/update/email', ['uses' => 'User\UserController@getUpdateEmail']);
+        Route::post('/update/email', ['uses' => 'User\UserController@postUpdateEmail']);
+
+        // Password Update
+        Route::get('/update/password', ['uses' => 'User\UserController@getUpdatePassword']);
+        Route::post('/update/password', ['uses' => 'User\UserController@postUpdatePassword']);
+    });
+
+    // Dishes
+    Route::group(['prefix' => 'user/dishes', 'middleware' => 'auth', 'as' => 'dish::'], function () {
+        // List (get) and delete (post)
+        Route::get('/', ['uses' => 'Dish\DishController@getList']);
+        Route::post('/', ['uses' => 'Dish\DishController@postList']);
+
+        // Create
+        Route::get('/create', ['uses' => 'Dish\DishController@getCreate']);
+        Route::post('/create', ['uses' => 'Dish\DishController@postCreate']);
+
+        // Update
+        Route::get('/update/{id}', ['uses' => 'Dish\DishController@getUpdate'])->where('id', '[0-9]+');
+        Route::post('/update/{id}', ['uses' => 'Dish\DishController@postUpdate'])->where('id', '[0-9]+');
+
+        // Delete
+        Route::get('/delete/{id}', ['uses' => 'Dish\DishController@getDelete'])->where('id', '[0-9]+');
+    });
+
+    // Meals
+    Route::group(['prefix' => 'user/meals', 'middleware' => 'auth', 'as' => 'meal::'], function () {
+        // List (get) and delete (post)
+        Route::get('/', ['uses' => 'Meal\MealController@getList']);
+
+        // Create
+        Route::get('/create', ['uses' => 'Meal\MealController@getCreate']);
+        Route::post('/create', ['uses' => 'Meal\MealController@postCreate']);
+        // Update
+        Route::get('/update/{id}', ['uses' => 'Meal\MealController@getUpdate'])->where('id', '[0-9]+');
+        Route::post('/update/{id}', ['uses' => 'Meal\MealController@postUpdate'])->where('id', '[0-9]+');
+
+        // Delete
+        Route::get('/delete/{id}', ['uses' => 'Meal\MealController@getDelete'])->where('id', '[0-9]+');
+    });
 });
