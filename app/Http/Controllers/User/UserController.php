@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Auth;
 use Validator;
 use Mail;
@@ -45,15 +46,13 @@ class UserController extends Controller
         ]);
 
 		if ($validator->fails()) {
-			return redirect()->route('user::signup_get')
-						   ->withErrors($validator)
-						   ->withInput();
+			return $validator->errors()->all();
 		} else {
 	        $user = User::create([
 	            'first_name' => $request->input('first_name'),
-	            'last_name' => $request->input('last_name'),
-	            'email' => $request->input('email'),
-	            'password' => bcrypt($request->input('password')),
+	            'last_name'  => $request->input('last_name'),
+	            'email'      => $request->input('email'),
+	            'password'   => bcrypt($request->input('password')),
 	        ]);
 
 	        // Create User email change
@@ -76,7 +75,8 @@ class UserController extends Controller
 			);
 		}
 
-		return redirect()->route('home');
+		$response = new Response(null, 201);
+		return $response;
 	}
 
 	/**
