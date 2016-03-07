@@ -9,12 +9,7 @@ class UserControllerTest extends TestCase
     use DatabaseMigrations;
 
     /**
-     * Test user registration validations work
-     *
-     * Obs: Couldn't do it using $this->visit('pagename').
-     * Error: "Session missing key: errors", though validation has errors.
-     *
-     * @return void
+     * Test user registration validations
      */
     public function testUserRegistrationValidationWorks()
     {
@@ -38,6 +33,9 @@ class UserControllerTest extends TestCase
         $this->notSeeInDatabase('users', ['email' => $data['email']]);
     }
 
+    /**
+     * Test User registration works
+     */
 	public function testUserRegistrationWorks()
 	{
         $data = [
@@ -52,4 +50,5 @@ class UserControllerTest extends TestCase
 
         $this->seeInDatabase('users', ['email' => $data['email']]);
 	}
+
 }
