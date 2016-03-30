@@ -152,23 +152,23 @@ Route::group(['prefix' => 'user/meals', 'middleware' => 'auth', 'as' => 'meal::'
 Route::group(['prefix' => '/api/0.1', 'middleware' => 'cors'], function () {
     Route::get('/signin', ['uses' => 'User\UserController@getSignin']);
     Route::get('/signout', ['uses' => 'Auth\AuthController@getLogout']);
-    Route::post('/signup', ['uses' => 'User\UserController@postRegister']);
+    Route::put('/email/confirm/{email}/{token}', [
+        'uses' => 'User\UserController@putEmailConfirmation'
+    ]);
+
 
     // User account
-    Route::group(['prefix' => 'user', 'middleware' => 'auth', 'as' => 'user::'], function () {
+    Route::group(['prefix' => '/user/{username}'], function () {
+        Route::put('', ['uses' => 'User\UserController@putCreateUpdate']);
         // Password reset link request and reset routes
         Route::get('/password/email', ['uses' => 'Auth\PasswordController@getEmail']);
         Route::post('/password/email', ['uses' => 'Auth\PasswordController@postEmail']);
         Route::get('/password/reset/{token}', ['uses' => 'Auth\PasswordController@getReset']);
         Route::post('/password/reset', ['uses' => 'Auth\PasswordController@postReset',]);
 
-        // Update
-        Route::get('/update', ['uses' => 'User\UserController@getUpdate']);
-        Route::post('/update', ['uses' => 'User\UserController@postUpdate']);
 
         // Email Update
-        Route::get('/update/email', ['uses' => 'User\UserController@getUpdateEmail']);
-        Route::post('/update/email', ['uses' => 'User\UserController@postUpdateEmail']);
+        Route::put('/update/email/{userId}', ['uses' => 'User\UserController@putUpdateEmail']);
 
         // Password Update
         Route::get('/update/password', ['uses' => 'User\UserController@getUpdatePassword']);

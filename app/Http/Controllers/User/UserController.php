@@ -36,89 +36,66 @@ class UserController extends Controller
 		}
 	}
 
-	public function postRegister(Request $request)
+	public function putCreateUpdate($username, Request $request)
 	{
-        $validator = Validator::make($request->all(), [
-            'first_name' => 'required|min:3|max:255',
-            'last_name'  => 'required|min:3|max:255',
-            'email'      => 'required|email|max:255|unique:users',
-            'password'   => 'required|confirmed|min:6',
-        ]);
+		// Creating
+		$user = User::where('username', $username)->first();
+		if (!$user instanceof User) {
+			$validator = Validator::make(
+				array_merge($request->all(), ['username' => $username]), [
+					'username'   => 'min:2|unique:users',
+					'email'      => 'required|email|max:255|unique:users',
+					'password'   => 'required|confirmed|min:6',
+					'first_name' => 'required|min:3|max:255',
+					'last_name'  => 'required|min:3|max:255',
+			]);
 
-		if ($validator->fails()) {
-			return $validator->errors()->all();
+			if ($validator->fails()) {
+				return $validator->errors()->all();
+			} else {
+				$user = User::create([
+					'username'   => $username,
+					'email'      => $request->input('email'),
+					'password'   => bcrypt($request->input('password')),
+					'first_name' => $request->input('first_name'),
+					'last_name'  => $request->input('last_name'),
+				]);
+
+				// Create User email change
+				$emailChange = new UserEmailChange();
+				$emailChange->user_id = $user->id;
+				$emailChange->email = $user->email;
+				$emailChange->token = str_random();
+				$emailChange->save();
+
+				// Confirm email address
+				Mail::send('emails/user/register', array('emailChange' => $emailChange),
+					function($message) use ($user) {
+						$message->to($user->email, $user->first_name)
+						->subject('Email address confirmation');
+					}
+				);
+			}
+			$response = new Response(null, 201);
 		} else {
-	        $user = User::create([
-	            'first_name' => $request->input('first_name'),
-	            'last_name'  => $request->input('last_name'),
-	            'email'      => $request->input('email'),
-	            'password'   => bcrypt($request->input('password')),
-	        ]);
+			// Updating
+			$validator = Validator::make($request->all(), [
+				'first_name' => 'required|min:3|max:255',
+				'last_name'  => 'required|min:3|max:255',
+			]);
 
-	        // Create User email change
-			$emailChange = new UserEmailChange();
-			$emailChange->user_id = $user->id;
-			$emailChange->email = $user->email;
-			$emailChange->token = str_random();
-			$emailChange->save();
+			if ($validator->fails()) {
+				return $validator->errors()->all();
+			} else {
+				$user->first_name = $request->input('first_name');
+				$user->last_name  = $request->input('last_name');
+				$user->save();
 
-			// Confirm email address
-			Mail::send('emails/user/register', array('emailChange' => $emailChange),
-				function($message) use ($user) {
-				    $message->to($user->email, $user->first_name)
-							->subject('Email address confirmation');
-				}
-			);
-
-			$this->setFlashMessage(
-				'success', 'Account created! An email has been sent to your inbox.'
-			);
+			$response = new Response(null, 200);
+			}
 		}
 
-		$response = new Response(null, 201);
 		return $response;
-	}
-
-	/**
-	 * Show the form for editing the specified resource.
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function getUpdate()
-	{
-		// get user
-		return view('user/update', ['user' => Auth::user()]);
-	}
-
-
-	/**
-	 * Updates user information
-	 *
-	 * @return Response
-	 */
-	public function postUpdate(Request $request)
-	{
-		// validate
-		$validator = Validator::make($request->all(), array(
-			'first_name' => 'required|min:3',
-			'last_name'  => 'required|min:3',
-		));
-
-		// process the login
-		if ($validator->fails()) {
-			return redirect()->route('user::update_get')->withErrors($validator);
-		} else {
-			// Update
-			$user = User::find(Auth::user()->id);
-			$user->first_name = $request->input('first_name');
-			$user->last_name  = $request->input('last_name');
-			$user->save();
-
-			$this->setFlashMessage('success', 'Account Updated!');
-		}
-
-		return redirect()->route('home');
 	}
 
 	/**
