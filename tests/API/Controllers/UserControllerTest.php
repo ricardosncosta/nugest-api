@@ -23,7 +23,7 @@ class UserControllerTest extends TestCase
             'last_name'             => ''
         ];
 
-        $this->put('/api/0.1/user/' . $data['username'], $data)
+        $this->post('/api/0.1/signup', $data)
              ->seeJsonEquals([
                 'The username must be at least 2 characters.',
                 'The email must be a valid email address.',
@@ -49,7 +49,7 @@ class UserControllerTest extends TestCase
 		 	'password'              => '123456',
 		 	'password_confirmation' => '123456',
 		];
-        $this->put('/api/0.1/user/' . $data['username'], $data)
+        $this->post('/api/0.1/signup', $data)
              ->seeStatusCode(201);
 
         $this->seeInDatabase('users', ['username' => $data['username']]);

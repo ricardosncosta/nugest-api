@@ -36,66 +36,74 @@ class UserController extends Controller
 		}
 	}
 
-	public function putCreateUpdate($username, Request $request)
+	/**
+	 * Creates user account
+	 * @param  Request $request Request object
+	 * @return Response object
+	 */
+	public function postSignup(Request $request)
 	{
-		// Creating
-		$user = User::where('username', $username)->first();
-		if (!$user instanceof User) {
-			$validator = Validator::make(
-				array_merge($request->all(), ['username' => $username]), [
-					'username'   => 'min:2|unique:users',
-					'email'      => 'required|email|max:255|unique:users',
-					'password'   => 'required|confirmed|min:6',
-					'first_name' => 'required|min:3|max:255',
-					'last_name'  => 'required|min:3|max:255',
-			]);
+		$validator = Validator::make($request->all(), [
+			'username'   => 'min:2|unique:users',
+			'email'      => 'required|email|max:255|unique:users',
+			'password'   => 'required|confirmed|min:6',
+			'first_name' => 'required|min:3|max:255',
+			'last_name'  => 'required|min:3|max:255',
+		]);
 
-			if ($validator->fails()) {
-				return $validator->errors()->all();
-			} else {
-				$user = User::create([
-					'username'   => $username,
-					'email'      => $request->input('email'),
-					'password'   => bcrypt($request->input('password')),
-					'first_name' => $request->input('first_name'),
-					'last_name'  => $request->input('last_name'),
-				]);
-
-				// Create User email change
-				$emailChange = new UserEmailChange();
-				$emailChange->user_id = $user->id;
-				$emailChange->email = $user->email;
-				$emailChange->token = str_random();
-				$emailChange->save();
-
-				// Confirm email address
-				Mail::send('emails/user/register', array('emailChange' => $emailChange),
-					function($message) use ($user) {
-						$message->to($user->email, $user->first_name)
-						->subject('Email address confirmation');
-					}
-				);
-			}
-			$response = new Response(null, 201);
+		if ($validator->fails()) {
+			return $validator->errors()->all();
 		} else {
-			// Updating
-			$validator = Validator::make($request->all(), [
-				'first_name' => 'required|min:3|max:255',
-				'last_name'  => 'required|min:3|max:255',
+			$user = User::create([
+				'username'   => $request->input('username'),
+				'email'      => $request->input('email'),
+				'password'   => bcrypt($request->input('password')),
+				'first_name' => $request->input('first_name'),
+				'last_name'  => $request->input('last_name'),
 			]);
 
-			if ($validator->fails()) {
-				return $validator->errors()->all();
-			} else {
-				$user->first_name = $request->input('first_name');
-				$user->last_name  = $request->input('last_name');
-				$user->save();
+			// Create User email change
+			$emailChange = new UserEmailChange();
+			$emailChange->user_id = $user->id;
+			$emailChange->email = $user->email;
+			$emailChange->token = str_random();
+			$emailChange->save();
 
-			$response = new Response(null, 200);
-			}
+			// Confirm email address
+			Mail::send('emails/user/register', array('emailChange' => $emailChange),
+				function($message) use ($user) {
+					$message->to($user->email, $user->first_name)
+					->subject('Email address confirmation');
+				}
+			);
+		}
+		return new Response(null, 201);
+	}
+
+	/**
+	 * Updated user account data
+	 * @param  string $username
+	 * @param  Request $request Request object
+	 * @return Response object
+	 */
+	public function putUpdate($username, Request $request)
+	{
+		// Updating
+		$validator = Validator::make($request->all(), [
+			'first_name' => 'required|min:3|max:255',
+			'last_name'  => 'required|min:3|max:255',
+		]);
+
+		if ($validator->fails()) {
+			return $validator->errors()->all();
+		} else {
+			$user = Auth::User();
+			$user->first_name = $request->input('first_name');
+			$user->last_name  = $request->input('last_name');
+			$user->save();
 		}
 
-		return $response;
+		return new Response(null, 200);
 	}
 
 	/**
