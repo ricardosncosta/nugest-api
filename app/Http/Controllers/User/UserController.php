@@ -139,22 +139,11 @@ class UserController extends Controller
 
 
 	/**
-	 * Show user email update form.
+	 * Validates and Updates user email changes.
 	 *
 	 * @return Response
 	 */
-	public function getUpdateEmail()
-	{
-		// get user
-		return view('user/update_email', ['user' => Auth::user()]);
-	}
-
-	/**
-	 * Validates and Updates user email.
-	 *
-	 * @return Response
-	 */
-	public function postUpdateEmail(Request $request)
+	public function putUpdateEmail(Request $request, $username)
 	{
 		$validator = Validator::make($request->all(), array(
 	        'current_password'   => 'required|checkauth',
@@ -163,28 +152,29 @@ class UserController extends Controller
 	    ));
 
 		if ($validator->fails()) {
-			$request->session()->keep(['errors']);
-			return redirect()->route('user::update_email_get')->withErrors($validator);
+			return $validator->errors()->all();
 		} else {
-			$emailChange = new UserEmailChange();
-			$emailChange->user_id = Auth::user()->id;
-			$emailChange->email = $request->input('email');
-			$emailChange->token = str_random();
-			$emailChange->save();
+			$user = User::where('username', $username)->first();
+			if ($user instanceof User) {
+				$emailChange = new UserEmailChange();
+				$emailChange->user_id = $user->id;
+				$emailChange->email = $request->input('email');
+				$emailChange->token = str_random();
+				$emailChange->save();
 
-			// Confirm email address
-			$user = Auth::user();
-			Mail::send('emails/user/register', array('emailChange' => $emailChange),
-				function($message) use ($emailChange, $user) {
-				    $message->to($emailChange->email, $user->first_name)
-							->subject('New email address confirmation');
-				}
-			);
-
-			$this->setFlashMessage('success', 'Email address updated.');
+				// Confirm email address
+				Mail::send('emails/user/register', array('emailChange' => $emailChange),
+					function($message) use ($emailChange, $user) {
+						$message->to($emailChange->email, $user->first_name)
+								->subject('New email address confirmation');
+					}
+				);
+			} else {
+				return new Response(null, 404);
+			}
 		}
 
-		return redirect()->route('home');
+		return new Response(null, 200);
 	}
 
 	/**
@@ -192,7 +182,7 @@ class UserController extends Controller
 	 *
 	 * @return Response
 	 */
-	public function getEmailConfirmation($email, $token)
+	public function putEmailConfirmation($email, $token)
 	{
 		$emailChg = UserEmailChange::where('email', '=', $email)
 								   ->where('token', '=', $token)
@@ -200,14 +190,13 @@ class UserController extends Controller
 								   ->orderBy('created_at', 'desc')
 								   ->first();
 
-
 		if ($emailChg instanceof UserEmailChange) {
 			$limitDateTime = new \DateTime();
 			$limitDateTime->sub(new \DateInterval('P7D'));
 
 			$user = Auth::check() ? Auth::user() : User::find($emailChg->user_id);
-			// If $user->email == $emailChg->email, it's the first time.
-			// No need to check expiry date then
+			// If $user->email == $emailChg->email, meants it's the first time.
+			// There's no need to check expiration date then
 			if ($user->email == $emailChg->email or $emailChg->created_at >= $limitDateTime) {
 				// Update user email, if changed since registration
 				if ($user->email != $emailChg->email) {
@@ -219,24 +208,12 @@ class UserController extends Controller
 				$emailChg->confirmed = true;
 				$emailChg->save();
 
-				$this->setFlashMessage('success', 'Your email is verified. You may now login if you didn\'t already.');
+				return new Response(['Your email is verified']);
 			} else {
-				$this->setFlashMessage('danger', 'Your request is no longer valid. Please contact us or submit a new one.');
+				return new Response(['Your request is no longer valid. Please contact us or submit a new one']);
 			}
 		} else {
-			// redirect
-			$this->setFlashMessage('danger', 'We could not confirm your email address. Please try again.');
-		}
-
-		// Simple hack not to loose flash messages between redirects.
-		// Authentication is already a built-in trait so no need to rewrite or
-		// create a closure in route definition
-		if (Auth::check()) {
-			// If logged, get redirected to landing page
-			return redirect()->route('home');
-		} else {
-			// If not, gets redirected to signin page
-			return redirect()->route('signin_get');
+			return new Response(['We could not confirm your email address. Please try again.']);
 		}
 	}
 }

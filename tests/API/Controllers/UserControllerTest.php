@@ -160,7 +160,7 @@ class UserControllerTest extends TestCase
         ];
 
         $this->actingAs($user)
-             ->put("/api/0.1/user/update/email/{$user->id}", $data);
+             ->put("/api/0.1/user/{$user->username}/email/", $data);
 
         $expiredDate = new \DateTime();
         $expiredDate->sub(new \DateInterval('P8D'));

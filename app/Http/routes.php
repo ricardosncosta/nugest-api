@@ -168,7 +168,7 @@ Route::group(['prefix' => '/api/0.1', 'middleware' => 'cors'], function () {
 
 
         // Email Update
-        Route::put('/update/email/{userId}', ['uses' => 'User\UserController@putUpdateEmail']);
+        Route::put('/email', ['uses' => 'User\UserController@putUpdateEmail']);
 
         // Password Update
         Route::get('/update/password', ['uses' => 'User\UserController@getUpdatePassword']);
