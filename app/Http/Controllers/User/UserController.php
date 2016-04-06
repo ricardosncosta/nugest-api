@@ -107,21 +107,11 @@ class UserController extends Controller
 	}
 
 	/**
-	 * Show user password update form.
-	 *
-	 * @return Response
-	 */
-	public function getUpdatePassword()
-	{
-		return view('user/update_password');
-	}
-
-	/**
 	 * Validates and Updates user password.
 	 *
 	 * @return Response
 	 */
-	public function postUpdatePassword(Request $request)
+	public function putUpdatePassword(Request $request)
 	{
 		// validate
 		$validator = Validator::make($request->all(), array(
@@ -131,18 +121,15 @@ class UserController extends Controller
 		));
 
 		if ($validator->fails()) {
-			return redirect()->route('user::update_password_get')
-						   ->withErrors($validator);
+			return $validator->errors()->all();
 		} else {
 			// Change password
 			$user = Auth::user();
 			$user->password = bcrypt($request->input('password'));
 			$user->save();
-
-			$this->setFlashMessage('success', 'Password updated.');
 		}
 
-		return redirect()->route('home');
+		return new Response(null, 200);
 	}
 
 

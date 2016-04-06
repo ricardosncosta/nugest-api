@@ -188,4 +188,48 @@ class UserControllerTest extends TestCase
 
     }
 
+    /**
+     * Test password change
+     *
+     * @return void
+     */
+    public function testUserPasswordChange()
+    {
+        // Create dummy user
+        $defaultPassword = 'somepassword';
+        $user = factory(User::class)->create(['password' => bcrypt($defaultPassword)]);
+
+        // Change password and test validation
+        $data = [
+            'current_password'      => 'WrongPassword',
+            'password'              => '12345',
+            'password_confirmation' => '44444'
+        ];
+
+        // Test validation and make sure password hasn't changed
+        $this->actingAs($user)
+             ->put("/api/0.1/users/{$user->username}/password", $data)
+             ->seeJsonEquals([
+                 'The password is incorrect.',
+                 'The password must be at least 6 characters.',
+                 'The password confirmation does not match.',
+             ]);
+
+        $user = User::find($user->id);
+        $this->assertTrue(Hash::check($defaultPassword, $user->password));
+
+        // Test password update
+        $data = [
+            'current_password'      => 'somepassword',
+            'password'              => '123456789abcdef',
+            'password_confirmation' => '123456789abcdef'
+        ];
+        $this->actingAs($user)
+             ->put("/api/0.1/users/{$user->username}/password", $data)
+             ->seeStatusCode(200);
+
+        $user = User::find($user->id);
+        $this->assertTrue(Hash::check($data['password'], $user->password));
+    }
+
 }

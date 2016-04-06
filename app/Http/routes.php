@@ -167,6 +167,9 @@ Route::group(['prefix' => '/api/0.1', 'middleware' => 'cors'], function () {
 
             // Email Update
             Route::put('/email', ['uses' => 'User\UserController@putUpdateEmail']);
+
+            // Password Update
+            Route::put('/password', ['uses' => 'User\UserController@putUpdatePassword']);
         });
 
         // Password reset link request and reset routes
@@ -175,9 +178,6 @@ Route::group(['prefix' => '/api/0.1', 'middleware' => 'cors'], function () {
         Route::get('/password/reset/{token}', ['uses' => 'Auth\PasswordController@getReset']);
         Route::post('/password/reset', ['uses' => 'Auth\PasswordController@postReset',]);
 
-        // Password Update
-        Route::get('/update/password', ['uses' => 'User\UserController@getUpdatePassword']);
-        Route::post('/update/password', ['uses' => 'User\UserController@postUpdatePassword']);
     });
 
     // Dishes

@@ -22,7 +22,7 @@ class PasswordValidationServiceProvider extends ServiceProvider
 
         Validator::replacer('checkauth', function($message, $attribute, $rule, $parameters) {
             return str_replace(
-                'validation.checkauth', 'Password is incorrect.', $message
+                'validation.checkauth', 'The password is incorrect.', $message
             );
         });
     }
