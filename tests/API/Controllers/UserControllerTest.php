@@ -23,7 +23,7 @@ class UserControllerTest extends TestCase
             'last_name'             => ''
         ];
 
-        $this->post('/api/0.1/signup', $data)
+        $this->post('/api/0.1/users', $data)
              ->seeJsonEquals([
                 'The username must be at least 2 characters.',
                 'The email must be a valid email address.',
@@ -49,7 +49,7 @@ class UserControllerTest extends TestCase
 		 	'password'              => '123456',
 		 	'password_confirmation' => '123456',
 		];
-        $this->post('/api/0.1/signup', $data)
+        $this->post('/api/0.1/users', $data)
              ->seeStatusCode(201);
 
         $this->seeInDatabase('users', ['username' => $data['username']]);
@@ -75,7 +75,7 @@ class UserControllerTest extends TestCase
 		 	'last_name'  => 'Do',
 		];
         $this->actingAs($user)
-             ->put("/api/0.1/user/{$user->username}", $data)
+             ->put("/api/0.1/users/{$user->username}", $data)
              ->seeJsonEquals([
                 'The first name must be at least 3 characters.',
                 'The last name must be at least 3 characters.',
@@ -108,7 +108,7 @@ class UserControllerTest extends TestCase
 		 	'last_name'  => 'Doe',
 		];
         $this->actingAs($user)
-             ->put("/api/0.1/user/{$user->username}", $data);
+             ->put("/api/0.1/users/{$user->username}", $data);
 
         $this->seeInDatabase('users', [
             'username'   => $user->username,
@@ -160,7 +160,7 @@ class UserControllerTest extends TestCase
         ];
 
         $this->actingAs($user)
-             ->put("/api/0.1/user/{$user->username}/email/", $data);
+             ->put("/api/0.1/users/{$user->username}/email/", $data);
 
         $expiredDate = new \DateTime();
         $expiredDate->sub(new \DateInterval('P8D'));
