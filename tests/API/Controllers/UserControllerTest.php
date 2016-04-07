@@ -133,17 +133,17 @@ class UserControllerTest extends TestCase
         ]);
 
         // Wrong token
-        $wrongUrl = "/api/0.1/email/confirm/{$emailChange->email}/WrongEmailToken";
+        $wrongUrl = "/api/0.1/users/confirm/{$emailChange->email}/WrongEmailToken";
         $this->put($wrongUrl)
              ->seeJsonEquals(['We could not confirm your email address. Please try again.']);
 
         // Wrong email
-        $wrongUrl = "/api/0.1/email/confirm/somerandom@email.com/{$emailChange->token}";
+        $wrongUrl = "/api/0.1/users/confirm/somerandom@email.com/{$emailChange->token}";
         $this->put($wrongUrl)
              ->seeJsonEquals(['We could not confirm your email address. Please try again.']);
 
         // Test confirmation works
-        $rightUrl = "/api/0.1/email/confirm/{$emailChange->email}/{$emailChange->token}";
+        $rightUrl = "/api/0.1/users/confirm/{$emailChange->email}/{$emailChange->token}";
         $this->put($rightUrl)
              ->seeJsonEquals(['Your email is verified']);
 
@@ -173,7 +173,7 @@ class UserControllerTest extends TestCase
         $emailChange->save();
 
         // Test confirmation works
-        $rightUrl = "/api/0.1/email/confirm/{$emailChange->email}/{$emailChange->token}";
+        $rightUrl = "/api/0.1/users/confirm/{$emailChange->email}/{$emailChange->token}";
         $this->put($rightUrl)
              ->seeJsonEquals(['Your request is no longer valid. Please contact us or submit a new one']);
 
@@ -183,7 +183,7 @@ class UserControllerTest extends TestCase
         $emailChange->save();
 
         // Test confirmation works
-        $rightUrl = "/api/0.1/email/confirm/{$emailChange->email}/{$emailChange->token}";
+        $rightUrl = "/api/0.1/users/confirm/{$emailChange->email}/{$emailChange->token}";
         $this->put($rightUrl)
              ->seeJsonEquals(['Your email is verified']);
 

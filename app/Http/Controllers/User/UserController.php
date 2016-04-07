@@ -42,7 +42,7 @@ class UserController extends Controller
 	 * @param  Request $request Request object
 	 * @return Response object
 	 */
-	public function postSignup(Request $request)
+	public function store(Request $request)
 	{
 		$validator = Validator::make($request->all(), [
 			'username'   => 'min:2|unique:users',
@@ -87,7 +87,7 @@ class UserController extends Controller
 	 * @param  Request $request Request object
 	 * @return Response object
 	 */
-	public function putUpdate($username, Request $request)
+	public function update($username, Request $request)
 	{
 		// Updating
 		$validator = Validator::make($request->all(), [
@@ -112,7 +112,7 @@ class UserController extends Controller
 	 *
 	 * @return Response
 	 */
-	public function putUpdatePassword(Request $request)
+	public function updatePassword(Request $request)
 	{
 		// validate
 		$validator = Validator::make($request->all(), array(
@@ -139,7 +139,7 @@ class UserController extends Controller
 	 *
 	 * @return Response
 	 */
-	public function putUpdateEmail(Request $request, $username)
+	public function updateEmail(Request $request, $username)
 	{
 		$validator = Validator::make($request->all(), array(
 	        'current_password'   => 'required|checkauth',
@@ -178,7 +178,7 @@ class UserController extends Controller
 	 *
 	 * @return Response
 	 */
-	public function putEmailConfirmation($email, $token)
+	public function emailConfirmation($email, $token)
 	{
 		$emailChg = UserEmailChange::where('email', '=', $email)
 								   ->where('token', '=', $token)
@@ -218,7 +218,7 @@ class UserController extends Controller
 	 *
 	 * @return Response
 	 */
-	public function postPasswordReset(Request $request)
+	public function passwordResetRequest(Request $request)
 	{
 		$email = $request->input('email', null);
 		if ($email != null) {
@@ -252,7 +252,7 @@ class UserController extends Controller
 	 *
 	 * @return Response
 	 */
-	public function putPasswordReset(Request $request, $token)
+	public function passwordReset(Request $request, $token)
 	{
 		$pwReset = UserPasswordReset::where('token', $token)
 									->orderBy('created_at', 'desc')
