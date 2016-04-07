@@ -133,7 +133,6 @@ class UserController extends Controller
 		return new Response(null, 200);
 	}
 
-
 	/**
 	 * Validates and Updates user email changes.
 	 *
