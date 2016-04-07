@@ -173,6 +173,9 @@ Route::group(['prefix' => '/api/0.1', 'middleware' => 'cors'], function () {
 
             // Password Update
             Route::put('/password', ['uses' => 'User\UserController@updatePassword']);
+
+            // Remove
+            Route::delete('', ['uses' => 'User\UserController@destroy']);
         });
 
         // Password reset link request and reset routes

@@ -296,4 +296,37 @@ class UserControllerTest extends TestCase
         $this->assertTrue(Hash::check($data['password'], $user->password));
     }
 
+    /**
+     * Test delete user
+     *
+     * @return void
+     */
+    public function testDeletetUser()
+    {
+        // Create dummy user
+        $plainPw = 'somepassword';
+        $user = factory(User::class)->create(['password' => bcrypt($plainPw)]);
+
+        // Test validation
+        $data = ['current_password' => 'WrongPassword', 'confirm' => false];
+        $this->actingAs($user)
+             ->delete("/api/0.1/users/{$user->username}", $data)
+             ->seeJsonEquals(['The password is incorrect.']);
+
+        // user should be visible and deleted_at should stay null
+        $this->seeInDatabase('users', ['id' => $user->id, 'deleted_at' => null]);
+
+
+        // Test user deletion
+        $data = ['current_password' => $plainPw, 'confirm' => true];
+        $this->actingAs($user)
+             ->delete("/api/0.1/users/{$user->username}", $data)
+             ->seeStatusCode(410);
+
+        // deleted_at should now be a timestamp
+        $this->notSeeInDatabase('users', [
+            'id'         => $user->id,
+            'deleted_at' => null
+        ]);
+    }
 }

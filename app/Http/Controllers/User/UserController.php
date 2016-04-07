@@ -288,4 +288,23 @@ class UserController extends Controller
 		}
 	}
 
+	/**
+	 * Resets user password.
+	 *
+	 * @return Response
+	 */
+	public function destroy(Request $request)
+	{
+		$validator = Validator::make($request->all(), array(
+	        'current_password'   => 'required|checkauth',
+	        'confirm'			 => 'required|boolean:true',
+	    ));
+
+		if ($validator->fails()) {
+			return $validator->errors()->all();
+		} else {
+			Auth::user()->delete();
+			return new Response(null, 410);
+		}
+	}
 }
