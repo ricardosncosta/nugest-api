@@ -11,6 +11,7 @@ use Mail;
 use Redirect;
 use App\User;
 use App\UserEmailChange;
+use App\UserPasswordReset;
 
 class UserController extends Controller
 {
@@ -211,4 +212,80 @@ class UserController extends Controller
 			return new Response(['We could not confirm your email address. Please try again.']);
 		}
 	}
+
+	/**
+	 * Create user password reset request.
+	 *
+	 * @return Response
+	 */
+	public function postPasswordReset(Request $request)
+	{
+		$email = $request->input('email', null);
+		if ($email != null) {
+			try {
+				$user = User::where('email', $request->input('email'))->first();
+			} catch (Exception $e) {
+				$user = null;
+			}
+		}
+
+		if ($user instanceof User) {
+			$pwReset = new UserPasswordReset();
+			$pwReset->email = $user->email;
+			$pwReset->token = bin2hex(openssl_random_pseudo_bytes(16));
+			$pwReset->save();
+
+			// Send reset link
+			Mail::send('emails/user/passwordreset', array('token' => $pwReset->token),
+				function($message) use ($user) {
+					$message->to($user->email, $user->first_name)
+					->subject('Password reset request');
+				}
+			);
+		}
+
+		return new Response(null, 200);
+	}
+
+	/**
+	 * Resets user password.
+	 *
+	 * @return Response
+	 */
+	public function putPasswordReset(Request $request, $token)
+	{
+		$pwReset = UserPasswordReset::where('token', $token)
+									->orderBy('created_at', 'desc')
+									->first();
+
+		if ($pwReset instanceof UserPasswordReset) {
+			// validate
+			$validator = Validator::make($request->all(), array(
+				'password'              => 'required|confirmed|min:6',
+				'password_confirmation' => 'required',
+			));
+
+			if ($validator->fails()) {
+				return $validator->errors()->all();
+			} else {
+				$limitDateTime = new \DateTime();
+				$limitDateTime->sub(new \DateInterval('P7D'));
+
+				if ($pwReset->created_at >= $limitDateTime) {
+					// Update user password
+					$user = User::where('email', $pwReset->email)->first();
+					$user->password = bcrypt($request->input('password'));
+					$user->save();
+
+					return new Response(null, 200);
+				} else {
+					return new Response(['Your request is no longer valid. Please contact us or submit a new one.'], 410);
+				}
+			}
+
+		} else {
+			return new Response(['We could not confirm your request. Please try again.'], 404);
+		}
+	}
+
 }

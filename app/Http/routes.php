@@ -173,11 +173,8 @@ Route::group(['prefix' => '/api/0.1', 'middleware' => 'cors'], function () {
         });
 
         // Password reset link request and reset routes
-        Route::get('/password/email', ['uses' => 'Auth\PasswordController@getEmail']);
-        Route::post('/password/email', ['uses' => 'Auth\PasswordController@postEmail']);
-        Route::get('/password/reset/{token}', ['uses' => 'Auth\PasswordController@getReset']);
-        Route::post('/password/reset', ['uses' => 'Auth\PasswordController@postReset',]);
-
+        Route::post('/passwordreset', ['uses' => 'User\UserController@postPasswordReset']);
+        Route::put('/passwordreset/{token}', ['uses' => 'User\UserController@putPasswordReset']);
     });
 
     // Dishes

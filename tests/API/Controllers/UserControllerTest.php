@@ -2,6 +2,7 @@
 
 use App\User;
 use App\UserEmailChange;
+use App\UserPasswordReset;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 
@@ -226,6 +227,69 @@ class UserControllerTest extends TestCase
         ];
         $this->actingAs($user)
              ->put("/api/0.1/users/{$user->username}/password", $data)
+             ->seeStatusCode(200);
+
+        $user = User::find($user->id);
+        $this->assertTrue(Hash::check($data['password'], $user->password));
+    }
+
+    /**
+     * Test password reset
+     *
+     * @return void
+     */
+    public function testUserPasswordReset()
+    {
+        // Create dummy user
+        $defaultPW = 'somepassword';
+        $newPW = 'ANewPassword2';
+        $user = factory(User::class)->create(['password' => bcrypt($defaultPW)]);
+
+        // Change password, test validation and check no record is found
+        $this->post("/api/0.1/users/passwordreset", ['email' => 'wrong@emailaddress.com'])
+             ->seeStatusCode(200);
+        $this->notSeeInDatabase('users_password_reset', ['email' => $user->email]);
+
+        // Send email and check for records
+        $this->post("/api/0.1/users/passwordreset", ['email' => $user->email])
+             ->seeStatusCode(200);
+        $pwReset = UserPasswordReset::where('email', $user->email)
+                                    ->orderBy('created_at', 'desc')
+                                    ->first();
+        $this->assertTrue($pwReset instanceof UserPasswordReset);
+
+        // Test reset password with wrong token
+        $this->put("/api/0.1/users/passwordreset/somewrongtoken")
+             ->seeStatusCode(404);
+
+        // Test reset password validations
+        $data = [
+            'password'              => '12345',
+            'password_confirmation' => '11111'
+        ];
+        $this->put("/api/0.1/users/passwordreset/{$pwReset->token}", $data)
+             ->seeStatusCode(200);
+
+        // Test reset password token and expired date
+        $expiredDate = new \DateTime();
+        $expiredDate->sub(new \DateInterval('P8D'));
+        $pwReset->created_at = $expiredDate;
+        $pwReset->save();
+
+        $data = [
+            'password'              => $newPW,
+            'password_confirmation' => $newPW
+        ];
+        $this->put("/api/0.1/users/passwordreset/{$pwReset->token}", $data)
+             ->seeStatusCode(410);
+
+        // Test reset password token using same $data but diff timestamp
+        $expiredDate = new \DateTime();
+        $expiredDate->sub(new \DateInterval('P1D'));
+        $pwReset->created_at = $expiredDate;
+        $pwReset->save();
+
+        $this->put("/api/0.1/users/passwordreset/{$pwReset->token}", $data)
              ->seeStatusCode(200);
 
         $user = User::find($user->id);
