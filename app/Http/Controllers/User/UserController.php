@@ -16,7 +16,12 @@ use App\UserPasswordReset;
 class UserController extends Controller
 {
 
-	public function getSignin(Request $request)
+	/**
+	 * Signs user into the system
+	 * @param  Request $request Request object
+	 * @return Response object
+	 */
+	public function signin(Request $request)
 	{
 		$credentials = $request->only('email', 'password');
         $validator = Validator::make($credentials, [
@@ -32,7 +37,7 @@ class UserController extends Controller
 			if (Auth::attempt($credentials, $remember)) {
 				return Auth::user();
 			} else {
-				return ['Wrong credentials'];
+				return new Response(['Wrong credentials'], 400);
 			}
 		}
 	}
