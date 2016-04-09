@@ -2,145 +2,90 @@
 
 use App\User;
 use App\UserEmailChange;
+use App\UserPasswordReset;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class UserControllerTest extends TestCase
 {
     use DatabaseMigrations;
 
     /**
-     * Test landing page redirects to Login if user is unauthenticated
-     *
-     * @return void
+     * Test user creation validations
      */
-    public function testLandingRedirectsToLoginIfNotAuthenticated()
+    public function testUserCreationValidation()
     {
-        $this->visit(route('home'))
-             ->seePageIs(route('signin_get'));
+        $data = [
+			'username'              => 'j',
+			'email'                 => 'j@com',
+			'password'              => '12345',
+			'password_confirmation' => '44444',
+            'first_name'            => 'jo',
+            'last_name'             => ''
+        ];
+
+        $this->post('/api/0.1/users', $data)
+             ->seeJsonEquals([
+                'The username must be at least 2 characters.',
+                'The email must be a valid email address.',
+                'The password confirmation does not match.',
+                'The password must be at least 6 characters.',
+                'The first name must be at least 3 characters.',
+                'The last name field is required.',
+		    ]);
+
+        $this->notSeeInDatabase('users', ['username' => $data['username']]);
     }
 
     /**
-     * Test landing page redirects to Home if user is authenticated
-     *
-     * @return void
+     * Test User creation
      */
-    public function testLandingRedirectsToHomeIfUserIsAuthenticated()
-    {
-        $user = factory(User::class)->create();
-        $this->actingAs($user)
-             ->visit(route('home'))
-             ->seePageIs(route('home'));
-    }
+	public function testUserCreation()
+	{
+        $data = [
+			'username' 		        => 'johndoe',
+			'first_name' 			=> 'John',
+		 	'last_name' 			=> 'Doe',
+		 	'email'					=> 'joantu@email.co',
+		 	'password'              => '123456',
+		 	'password_confirmation' => '123456',
+		];
+        $this->post('/api/0.1/users', $data)
+             ->seeStatusCode(201);
+
+        $this->seeInDatabase('users', ['username' => $data['username']]);
+	}
 
     /**
-     * Test user registration validations work
-     *
-     * Obs: Couldn't do it using $this->visit('pagename').
-     * Error: "Session missing key: errors", though validation has errors.
+     * Test user account update validations
      *
      * @return void
      */
-    public function testUserRegistrationValidationWorks()
+    public function testUserAccountUpdateValidations()
     {
-        $this->visit(route('user::signup_get'))
-             ->type('jo', 'first_name')
-             ->type('', 'last_name')
-             ->type('j@com', 'email')
-             ->type('12345', 'password')
-             ->type('44444', 'password_confirmation')
-             ->press('Register')
-             ->seePageIs(route('user::signup_get'))
-             ->see('The first name must be at least 3 characters.')
-             ->see('The last name field is required.')
-             ->see('The email must be a valid email address.')
-             ->see('The password confirmation does not match.')
-             ->see('The password must be at least 6 characters.');
-
-        $this->notSeeInDatabase('users', ['email' => 'j@com']);
-    }
-
-    /**
-     * Test user registration works
-     *
-     * @return void
-     */
-    public function testUserRegistrationWorks()
-    {
-        $this->visit(route('user::signup_get'))
-             ->type('João', 'first_name')
-             ->type('Antunes', 'last_name')
-             ->type('joantu@email.com', 'email')
-             ->type('123456', 'password')
-             ->type('123456', 'password_confirmation')
-             ->press('Register')
-             ->seePageIs(route('signin_get'));
-
-            $this->seeInDatabase('users', ['email' => 'joantu@email.com']);
-    }
-
-    /**
-     * Test email confirmation
-     *
-     * @return void
-     */
-    public function testUserEmailConfirmationWorks()
-    {
-        $user = factory(User::class)->create();
+        $user = factory(User::class)->create(['password' => bcrypt('somepassword')]);
         $emailChange = factory(UserEmailChange::class)->create([
             'user_id'   => $user->id,
             'email'     => $user->email,
             'confirmed' => false
         ]);
 
-        // With invalid token and email
-        $getParams = array('email' => $emailChange->email,'token' => 'WrongEmailToken');
-        $this->visit(route('user::email_confirmation_get', $getParams))
-             ->see('confirm your email address');
-        $getParams = array('email' => "someEmail@email.com",'token' => $emailChange->token);
-        $this->visit(route('user::email_confirmation_get', $getParams))
-             ->see('confirm your email address');
-
-        // With valid token and email
-        $getParams = array('email' => $emailChange->email,'token' => $emailChange->token);
-        $this->visit(route('user::email_confirmation_get', $getParams))
-             ->see('Your email is verified')
-             ->seePageIs(route('signin_get'));
-        $results = UserEmailChange::where('email', '=', $user->email);
-        $this->assertEquals(1, count($results));
-        $this->seeInDatabase('users_email_change', [
-            'email'     => $user->email,
-            'token'     => $emailChange->token,
-            'confirmed' => true
-        ]);
-    }
-
-    /**
-     * Test user account update validation
-     *
-     * @return void
-     */
-    public function testUserAccountUpdateValidation()
-    {
-        $user = factory(User::class)->create();
-        $user->save();
-
-        $firstName = 'Fi';
-        $lastName = '';
+        // Change user data
+        $data = [
+			'first_name' => 'Jo',
+		 	'last_name'  => 'Do',
+		];
         $this->actingAs($user)
-             ->visit(route('user::update_get'))
-             ->type($firstName, 'first_name')
-             ->type($lastName, 'last_name')
-             ->press('Update')
-             ->seePageIs(route('user::update_get'))
-             ->see('The last name field is required.')
-             ->see('The first name must be at least 3 characters');
+             ->put("/api/0.1/users/{$user->username}", $data)
+             ->seeJsonEquals([
+                'The first name must be at least 3 characters.',
+                'The last name must be at least 3 characters.',
+             ]);
 
         $this->notSeeInDatabase('users', [
-            'first_name' => $firstName,
-            'last_name' => $lastName,
-            'email' => $user->email,
+            'username'   => $user->username,
+            'first_name' => $data['first_name'],
+            'last_name'  =>  $data['last_name'],
         ]);
     }
 
@@ -151,175 +96,237 @@ class UserControllerTest extends TestCase
      */
     public function testUserAccountUpdate()
     {
-        $user = factory(User::class)->create();
+        $user = factory(User::class)->create(['password' => bcrypt('somepassword')]);
         $emailChange = factory(UserEmailChange::class)->create([
-            'user_id' => $user->id,
+            'user_id'   => $user->id,
+            'email'     => $user->email,
             'confirmed' => false
         ]);
 
-        $firstName = 'Firstname';
-        $lastName = 'Lastname';
+        // Change user data
+        $data = [
+			'first_name' => 'John',
+		 	'last_name'  => 'Doe',
+		];
         $this->actingAs($user)
-             ->visit(route('user::update_get'))
-             ->type($firstName, 'first_name')
-             ->type($lastName, 'last_name')
-             ->press('Update')
-             ->seePageIs(route('home'));
+             ->put("/api/0.1/users/{$user->username}", $data);
 
-            $this->seeInDatabase('users', [
-                'first_name' => $firstName,
-                'last_name' => $lastName,
-                'email' => $user->email,
-            ]);
-    }
-
-    /**
-     * Test user account password update validation
-     *
-     * @return void
-     */
-    public function testUserAccountPwUpdateValidation()
-    {
-        $user = factory(User::class)->create();
-
-        $curPw = 'SomeWrongPW';
-        $newPw = '12345';
-
-        $this->actingAs($user)
-             ->visit(route('user::update_password_get'))
-             ->type($curPw, 'current_password')
-             ->type($newPw, 'password')
-             ->type($newPw.'1', 'password_confirmation')
-             ->press('Update password')
-             ->seePageIs(route('user::update_password_get'))
-             ->see('Password is incorrect')
-             ->see('The password confirmation does not match')
-             ->see('The password must be at least 6 characters.');
-
-        // Check password didn't change.
         $this->seeInDatabase('users', [
-            'email' => $user->email,
-            'password' => $user->password,
+            'username'   => $user->username,
+            'first_name' => $data['first_name'],
+            'last_name'  =>  $data['last_name'],
         ]);
     }
 
     /**
-     * Test user account password update
+     * Test email change and confirmation
      *
      * @return void
      */
-    public function testUserAccountPwUpdate()
+    public function testUserEmailChangeAndConfirmation()
     {
-        $curPw = "SomePassword";
-        $newPw = '123456789abcdef';
-        $user = factory(User::class)->create(['password' => bcrypt($curPw)]);
-
-        // Assert old password match
-        $this->assertFalse(\Hash::check($newPw, $user->password));
-
-        $this->actingAs($user)
-             ->visit(route('user::update_password_get'))
-             ->type($curPw, 'current_password')
-             ->type($newPw, 'password')
-             ->type($newPw, 'password_confirmation')
-             ->press('Update password')
-             ->see('Password updated.')
-             ->seePageIs(route('home'));
-
-        // Assert new password match
-        $user = User::where('email', '=', $user->email)->first();
-        $this->assertTrue(\Hash::check($newPw, $user->password));
-    }
-
-    /**
-     * Test user account email update validation
-     *
-     * @return void
-     */
-    public function testUserAccountEmailUpdateValidation()
-    {
-        $user = factory(User::class)->create();
+        $user = factory(User::class)->create(['password' => bcrypt('somepassword')]);
         $emailChange = factory(UserEmailChange::class)->create([
-            'user_id' => $user->id,
-            'email' => $user->email,
-            'confirmed' => true
-        ]);
-
-        $newEmail = 'wrongemailaddress@com';
-        $this->actingAs($user)
-             ->visit(route('user::update_email_get'))
-             ->type('SomeWrongPassword', 'current_password')
-             ->type($newEmail, 'email')
-             ->type($newEmail."1", 'email_confirmation')
-             ->press('Update email')
-             ->see('Password is incorrect')
-             ->see('The email must be a valid email address.')
-             ->see('The email confirmation does not match.')
-             ->seePageIs(route('user::update_email_get'));
-
-        $this->notSeeInDatabase('users_email_change', [
-            'user_id' => $user->id,
-            'email' => $newEmail
-        ]);
-    }
-
-    /**
-     * Test user account email update validation
-     *
-     * @return void
-     */
-    public function testUserAccountEmailUpdate()
-    {
-        $curPw = 'Sampl3P4ssword';
-        $user = factory(User::class)->create(['password' => bcrypt($curPw)]);
-        $emailChg = factory(UserEmailChange::class)->create([
             'user_id'   => $user->id,
             'email'     => $user->email,
-            'confirmed' => true
+            'confirmed' => false
         ]);
 
-        $newEmail = 'validemail@somemail.com';
-        $this->actingAs($user)
-             ->visit(route('user::update_email_get'))
-             ->type($curPw, 'current_password')
-             ->type($newEmail, 'email')
-             ->type($newEmail, 'email_confirmation')
-             ->press('Update email')
-             ->see('Email address updated.')
-             ->seePageIs(route('home'));
+        // Wrong token
+        $wrongUrl = "/api/0.1/users/confirm/{$emailChange->email}/WrongEmailToken";
+        $this->put($wrongUrl)
+             ->seeJsonEquals(['We could not confirm your email address. Please try again.']);
 
-        $newEmailChg = UserEmailChange::where('email', '=', $newEmail)
-                                      ->where('confirmed', '=', false)
-                                      ->orderBy('created_at', 'desc')
-                                      ->first();
-        $this->assertTrue($newEmailChg instanceof UserEmailChange);
+        // Wrong email
+        $wrongUrl = "/api/0.1/users/confirm/somerandom@email.com/{$emailChange->token}";
+        $this->put($wrongUrl)
+             ->seeJsonEquals(['We could not confirm your email address. Please try again.']);
 
-        // Test email confirmation expiry date (a week, 7 days)
-        $expiredDate = $newEmailChg->created_at;
-        $expiredDate->sub(new \DateInterval('P8D'));
-        $newEmailChg->created_at = $expiredDate;
-        $newEmailChg->save();
-
-        $getParams = ['email' => $newEmailChg->email, 'token' => $newEmailChg->token];
-        $this->visit(route('user::email_confirmation_get', $getParams))
-             ->seePageIs(route('home'))
-             ->see('Your request is no longer valid');
-
-        // Test email confirmation
-        $validDate = $newEmailChg->created_at;
-        $validDate->add(new \DateInterval('P1D'));
-        $newEmailChg->created_at = $validDate;
-        $newEmailChg->save();
-
-        $this->visit(route('user::email_confirmation_get', $getParams))
-             ->seePageIs(route('home'))
-             ->see('Your email is verified');
+        // Test confirmation works
+        $rightUrl = "/api/0.1/users/confirm/{$emailChange->email}/{$emailChange->token}";
+        $this->put($rightUrl)
+             ->seeJsonEquals(['Your email is verified']);
 
         $this->seeInDatabase('users_email_change', [
-            'id'        => $newEmailChg->id,
-            'email'     => $newEmail,
+            'email'     => $user->email,
+            'token'     => $emailChange->token,
             'confirmed' => true
         ]);
+
+        // Change email and test date expiry validation
+        $data = [
+            'current_password'   => 'somepassword',
+            'email'              => 'another@email.com',
+            'email_confirmation' => 'another@email.com'
+        ];
+
+        $this->actingAs($user)
+             ->put("/api/0.1/users/{$user->username}/email/", $data);
+
+        $expiredDate = new \DateTime();
+        $expiredDate->sub(new \DateInterval('P8D'));
+		$emailChange = UserEmailChange::where('user_id', $user->id)
+                                      ->where('confirmed', false)
+                                      ->orderBy('created_at', 'desc')
+                                      ->first();
+        $emailChange->created_at = $expiredDate;
+        $emailChange->save();
+
+        // Test confirmation works
+        $rightUrl = "/api/0.1/users/confirm/{$emailChange->email}/{$emailChange->token}";
+        $this->put($rightUrl)
+             ->seeJsonEquals(['Your request is no longer valid. Please contact us or submit a new one']);
+
+        $expiredDate = new \DateTime();
+        $expiredDate->sub(new \DateInterval('P1D'));
+        $emailChange->created_at = $expiredDate;
+        $emailChange->save();
+
+        // Test confirmation works
+        $rightUrl = "/api/0.1/users/confirm/{$emailChange->email}/{$emailChange->token}";
+        $this->put($rightUrl)
+             ->seeJsonEquals(['Your email is verified']);
+
     }
 
+    /**
+     * Test password change
+     *
+     * @return void
+     */
+    public function testUserPasswordChange()
+    {
+        // Create dummy user
+        $defaultPassword = 'somepassword';
+        $user = factory(User::class)->create(['password' => bcrypt($defaultPassword)]);
+
+        // Change password and test validation
+        $data = [
+            'current_password'      => 'WrongPassword',
+            'password'              => '12345',
+            'password_confirmation' => '44444'
+        ];
+
+        // Test validation and make sure password hasn't changed
+        $this->actingAs($user)
+             ->put("/api/0.1/users/{$user->username}/password", $data)
+             ->seeJsonEquals([
+                 'The password is incorrect.',
+                 'The password must be at least 6 characters.',
+                 'The password confirmation does not match.',
+             ]);
+
+        $user = User::find($user->id);
+        $this->assertTrue(Hash::check($defaultPassword, $user->password));
+
+        // Test password update
+        $data = [
+            'current_password'      => 'somepassword',
+            'password'              => '123456789abcdef',
+            'password_confirmation' => '123456789abcdef'
+        ];
+        $this->actingAs($user)
+             ->put("/api/0.1/users/{$user->username}/password", $data)
+             ->seeStatusCode(200);
+
+        $user = User::find($user->id);
+        $this->assertTrue(Hash::check($data['password'], $user->password));
+    }
+
+    /**
+     * Test password reset
+     *
+     * @return void
+     */
+    public function testUserPasswordReset()
+    {
+        // Create dummy user
+        $defaultPW = 'somepassword';
+        $newPW = 'ANewPassword2';
+        $user = factory(User::class)->create(['password' => bcrypt($defaultPW)]);
+
+        // Change password, test validation and check no record is found
+        $this->post("/api/0.1/users/passwordreset", ['email' => 'wrong@emailaddress.com'])
+             ->seeStatusCode(200);
+        $this->notSeeInDatabase('users_password_reset', ['email' => $user->email]);
+
+        // Send email and check for records
+        $this->post("/api/0.1/users/passwordreset", ['email' => $user->email])
+             ->seeStatusCode(200);
+        $pwReset = UserPasswordReset::where('email', $user->email)
+                                    ->orderBy('created_at', 'desc')
+                                    ->first();
+        $this->assertTrue($pwReset instanceof UserPasswordReset);
+
+        // Test reset password with wrong token
+        $this->put("/api/0.1/users/passwordreset/somewrongtoken")
+             ->seeStatusCode(404);
+
+        // Test reset password validations
+        $data = [
+            'password'              => '12345',
+            'password_confirmation' => '11111'
+        ];
+        $this->put("/api/0.1/users/passwordreset/{$pwReset->token}", $data)
+             ->seeStatusCode(200);
+
+        // Test reset password token and expired date
+        $expiredDate = new \DateTime();
+        $expiredDate->sub(new \DateInterval('P8D'));
+        $pwReset->created_at = $expiredDate;
+        $pwReset->save();
+
+        $data = [
+            'password'              => $newPW,
+            'password_confirmation' => $newPW
+        ];
+        $this->put("/api/0.1/users/passwordreset/{$pwReset->token}", $data)
+             ->seeStatusCode(410);
+
+        // Test reset password token using same $data but diff timestamp
+        $expiredDate = new \DateTime();
+        $expiredDate->sub(new \DateInterval('P1D'));
+        $pwReset->created_at = $expiredDate;
+        $pwReset->save();
+
+        $this->put("/api/0.1/users/passwordreset/{$pwReset->token}", $data)
+             ->seeStatusCode(200);
+
+        $user = User::find($user->id);
+        $this->assertTrue(Hash::check($data['password'], $user->password));
+    }
+
+    /**
+     * Test delete user
+     *
+     * @return void
+     */
+    public function testDeletetUser()
+    {
+        // Create dummy user
+        $plainPw = 'somepassword';
+        $user = factory(User::class)->create(['password' => bcrypt($plainPw)]);
+
+        // Test validation
+        $data = ['current_password' => 'WrongPassword', 'confirm' => false];
+        $this->actingAs($user)
+             ->delete("/api/0.1/users/{$user->username}", $data)
+             ->seeJsonEquals(['The password is incorrect.']);
+
+        // user should be visible and deleted_at should stay null
+        $this->seeInDatabase('users', ['id' => $user->id, 'deleted_at' => null]);
+
+
+        // Test user deletion
+        $data = ['current_password' => $plainPw, 'confirm' => true];
+        $this->actingAs($user)
+             ->delete("/api/0.1/users/{$user->username}", $data)
+             ->seeStatusCode(410);
+
+        // deleted_at should now be a timestamp
+        $this->notSeeInDatabase('users', [
+            'id'         => $user->id,
+            'deleted_at' => null
+        ]);
+    }
 }
