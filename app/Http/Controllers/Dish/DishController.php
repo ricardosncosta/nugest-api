@@ -79,16 +79,23 @@ class DishController extends Controller
 		}
 	}
 
-	// Ajax action
-	public function getDelete(Request $request, $id)
+	/**
+	 * Destroy resource
+	 * @param  Request object $request
+	 * @param  string $username table users username field
+	 * @param  int $dishId dishes table id field
+	 * @return Response object
+	 */
+	public function destroy(Request $request, $username, $dishId)
 	{
 		try {
-			$dish = Dish::findOrFail($id);
+			$dish = Dish::where('id', $dishId)
+						->where('user_id', Auth::user()->id)
+						->firstOrFail();
 			$dish->delete();
-
-			return response()->json(['status' => 'success']);
+			return new Response(null, 410);
 		} catch (ModelNotFoundException $e) {
-			abort(404, 'Item not found.');
+			return new Response('Item not found.', 404);
 		}
 	}
 

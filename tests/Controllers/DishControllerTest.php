@@ -95,4 +95,26 @@ class DishControllerTest extends TestCase
             'calories' => $data['calories'],
         ]);
     }
+
+    /**
+     * Test dish removal
+     */
+    public function testDishRemoval()
+    {
+        // Setup needed data
+        $user = factory(User::class)->create();
+        $dish = factory(Dish::class)->create(['user_id' => $user->id]);
+
+        // not found, throw 404
+        $this->actingAs($user)
+             ->delete("/api/0.1/users/{user->username}/dishes/20")
+             ->seeStatusCode(404);
+
+        // Functionality check
+        $this->actingAs($user)
+             ->delete("/api/0.1/users/{user->username}/dishes/{$dish->id}")
+             ->seeStatusCode(410);
+
+        $this->notSeeInDatabase('dishes', ['id' => $dish->id]);
+    }
 }

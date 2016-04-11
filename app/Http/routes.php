@@ -77,6 +77,7 @@ Route::group(['prefix' => '/api/0.1', 'middleware' => 'cors'], function () {
                 // Update, Delete
                 Route::group(['prefix' => '/{dishId}'], function () {
                     Route::put('', ['uses' => 'Dish\DishController@update']);
+                    Route::delete('', ['uses' => 'Dish\DishController@destroy']);
                 });
             });
         });
