@@ -14,9 +14,9 @@ class DishController extends Controller
 {
 
 	/**
-	 * List user dishes.
+	 * List resources.
 	 *
-	 * @return Response
+	 * @return Response object
 	 */
 	public function index()
 	{
@@ -25,6 +25,12 @@ class DishController extends Controller
 				   ->get();
 	}
 
+	/**
+	 * Create resource
+	 *
+	 * @param  Request $request Request object
+	 * @return Response object
+	 */
 	public function store(Request $request)
 	{
         $validator = Validator::make($request->all(), [
@@ -46,7 +52,8 @@ class DishController extends Controller
 	}
 
 	/**
-	 * Update dish data
+	 * Update resource
+	 *
 	 * @param  Request $request Request object
 	 * @param  String  $dishId  dishes table id field
 	 * @return Response object
@@ -81,6 +88,7 @@ class DishController extends Controller
 
 	/**
 	 * Destroy resource
+	 *
 	 * @param  Request object $request
 	 * @param  string $username table users username field
 	 * @param  int $dishId dishes table id field
