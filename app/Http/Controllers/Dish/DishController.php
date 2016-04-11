@@ -17,10 +17,11 @@ class DishController extends Controller
 	 *
 	 * @return Response
 	 */
-	public function getList()
+	public function index()
 	{
-		$dishes = Dish::where('user_id', '=', Auth::user()->id)->get();
-		return view('dish/list', ['dishes' => $dishes]);
+		return Dish::where('user_id', Auth::user()->id)
+				   ->orderBy('created_at', 'desc')
+				   ->get();
 	}
 
 	public function getCreate()
