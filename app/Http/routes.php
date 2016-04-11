@@ -70,11 +70,14 @@ Route::group(['prefix' => '/api/0.1', 'middleware' => 'cors'], function () {
 
             // User dishes
             Route::group(['prefix' => '/dishes'], function () {
-                // List
+                // List and create
                 Route::get('', ['uses' => 'Dish\DishController@index']);
-
-                // Create
                 Route::post('', ['uses' => 'Dish\DishController@store']);
+
+                // Update, Delete
+                Route::group(['prefix' => '/{dishId}'], function () {
+                    Route::put('', ['uses' => 'Dish\DishController@update']);
+                });
             });
         });
 

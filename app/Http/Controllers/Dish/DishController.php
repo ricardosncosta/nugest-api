@@ -45,37 +45,38 @@ class DishController extends Controller
 		}
 	}
 
-	public function getUpdate(Request $request, $id)
+	/**
+	 * Update dish data
+	 * @param  Request $request Request object
+	 * @param  String  $dishId  dishes table id field
+	 * @return Response object
+	 */
+	public function update(Request $request, $username, $dishId)
 	{
+		// Get dish or 404
 		try {
-			$dish = Dish::findOrFail($id);
-			return view('dish/update', ['dish' => $dish]);
+			$dish = Dish::where('id', $dishId)
+						->where('user_id', Auth::user()->id)
+						->firstOrFail();
 		} catch (ModelNotFoundException $e) {
-			abort(404, 'Item not found.');
+			return new Response('Item not found.', 404);
 		}
-	}
 
-	public function postUpdate(Request $request, $id)
-	{
+		// Validate data
         $validator = Validator::make($request->all(), [
             'name'     => 'required|min:3|max:255',
             'calories' => 'digits_between:1,4',
         ]);
 
 		if ($validator->fails()) {
-			return redirect()->route('dish::update_get', ['id' => $id])
-						     ->withErrors($validator)
-						     ->withInput();
+			return $validator->errors()->all();
 		} else {
-			$dish = Dish::find($id);
 	        $dish->name = $request->input('name');
 	    	$dish->calories = $request->input('calories', null);
 			$dish->save();
 
-			$this->setFlashMessage('success', 'Dish updated.');
+			return new Response($dish, 200);
 		}
-
-		return redirect()->route('dish::list');
 	}
 
 	// Ajax action
