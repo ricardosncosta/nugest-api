@@ -34,4 +34,31 @@ class DishControllerTest extends TestCase
              ->seeJsonEquals($dishes)
              ->seeStatusCode(200);
     }
+
+    /**
+     * Test dish creation
+     */
+    public function testDishCreation()
+    {
+        // Setup needed data
+        $user = factory(User::class)->create();
+
+        // Test validation
+        $data = ['name' => 'as'];
+        $this->actingAs($user)
+             ->post("/api/0.1/users/{user->username}/dishes", $data)
+             ->seeJsonEquals(['The name must be at least 3 characters.']);
+
+        // Test functionality
+        $data = ['name' => 'dish name #1', 'calories' => 100];
+        $this->actingAs($user)
+             ->post("/api/0.1/users/{user->username}/dishes", $data)
+             ->seeJsonContains($data)
+             ->seeStatusCode(201);
+
+        $this->seeInDatabase('dishes', [
+            'name'     => $data['name'],
+            'calories' => $data['calories'],
+        ]);
+    }
 }

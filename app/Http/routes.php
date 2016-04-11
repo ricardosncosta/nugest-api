@@ -72,6 +72,9 @@ Route::group(['prefix' => '/api/0.1', 'middleware' => 'cors'], function () {
             Route::group(['prefix' => '/dishes'], function () {
                 // List
                 Route::get('', ['uses' => 'Dish\DishController@index']);
+
+                // Create
+                Route::post('', ['uses' => 'Dish\DishController@store']);
             });
         });
 

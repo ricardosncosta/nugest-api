@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Dish;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use Auth;
@@ -24,12 +25,7 @@ class DishController extends Controller
 				   ->get();
 	}
 
-	public function getCreate()
-	{
-		return view('dish/create');
-	}
-
-	public function postCreate(Request $request)
+	public function store(Request $request)
 	{
         $validator = Validator::make($request->all(), [
             'name'     => 'required|min:3|max:255',
@@ -37,9 +33,7 @@ class DishController extends Controller
         ]);
 
 		if ($validator->fails()) {
-			return redirect()->route('dish::create_get')
-						     ->withErrors($validator)
-						     ->withInput();
+			return $validator->errors()->all();
 		} else {
 	        $dish = Dish::create([
 	            'user_id'  => Auth::user()->id,
@@ -47,10 +41,8 @@ class DishController extends Controller
 	            'calories' => $request->input('calories', null),
 	        ]);
 
-			$this->setFlashMessage('success', 'Dish created.');
+			return new Response($dish, 201);
 		}
-
-		return redirect()->route('dish::list');
 	}
 
 	public function getUpdate(Request $request, $id)
