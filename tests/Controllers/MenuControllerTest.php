@@ -18,9 +18,7 @@ class MenuControllerTest extends TestCase
     {
         // Getting data from seeders
         Artisan::call('migrate');
-        Artisan::call('db:seed', array('--class' => 'UsersTableSeeder'));
-        Artisan::call('db:seed', array('--class' => 'DishesTableSeeder'));
-        Artisan::call('db:seed', array('--class' => 'MenusTableSeeder'));
+        Artisan::call('db:seed', array('--class' => 'DatabaseSeeder'));
 
         $user = User::find(1);
         $this->actingAs($user)
