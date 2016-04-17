@@ -25,7 +25,8 @@ Route::group(['prefix' => '/api/0.1', 'middleware' => 'cors'], function () {
 
         // Confirm
         Route::put('/confirm/{email}/{token}', [
-            'uses' => 'User\UserController@emailConfirmation'
+            'uses' => 'User\UserController@emailConfirmation',
+            'as' => 'email_confirmation'
         ]);
 
         // Authenticated users
