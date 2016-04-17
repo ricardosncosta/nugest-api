@@ -18,10 +18,15 @@ class DishController extends Controller
 	 *
 	 * @return Response object
 	 */
-	public function index()
+	public function index(Request $request)
 	{
+		$results = $request->query('results', 15);
+		$page = $request->query('page', 0) * $results;
+
 		return Dish::where('user_id', Auth::user()->id)
 				   ->orderBy('created_at', 'desc')
+				   ->take($results)
+				   ->skip($page)
 				   ->get();
 	}
 
