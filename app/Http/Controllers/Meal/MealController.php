@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Meal;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use Auth;
@@ -31,40 +32,25 @@ class MealController extends Controller
 	}
 
 	/**
-	 * Shows meal creation page..
+	 * Create resource
 	 *
+	 * @param  Request $request Request object
 	 * @return Response
 	 */
-	public function getCreate()
+	public function store(Request $request)
 	{
-		$dishes = Dish::where('user_id', Auth::user()->id)->get();
-		return view('meal/create', ['dishes' => $dishes]);
-	}
-
-	/**
-	 * Create page data processor
-	 *
-	 * @return Response
-	 */
-	public function postCreate(Request $request)
-	{
-        $validator = Validator::make($request->all(), ['dish' => 'required',
-													   'datetime' => 'required']);
+        $validator = Validator::make($request->all(), ['dish_id' => 'required']);
 		if ($validator->fails()) {
-			return redirect()->route('meal::create_get')
-						     ->withErrors($validator)
-						     ->withInput();
+			return $validator->errors()->all();
 		} else {
 	        $meal = Meal::create([
 	            'user_id'  => Auth::user()->id,
-	            'dish_id'  => $request->input('dish'),
+	            'dish_id'  => $request->input('dish_id'),
 	            'datetime' => new \DateTime($request->input('datetime')),
 	        ]);
 
-			$this->setFlashMessage('success', 'Meal created.');
+			return new Response($meal, 201);
 		}
-
-		return redirect()->route('meal::list_get');
 	}
 
 	/**

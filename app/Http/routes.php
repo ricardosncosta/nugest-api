@@ -51,8 +51,9 @@ Route::group(['prefix' => '/api/0.1', 'middleware' => 'cors'], function () {
 
             // User Meals
             Route::group(['prefix' => '/meals'], function () {
-                // List (get)
+                // List (GET) and create (POST)
                 Route::get('', ['uses' => 'Meal\MealController@index']);
+                Route::post('', ['uses' => 'Meal\MealController@store']);
             });
 
         });
