@@ -11,38 +11,6 @@
 |
 */
 
-// Meal routes
-Route::group(['prefix' => 'user/meals', 'middleware' => 'auth', 'as' => 'meal::'], function () {
-    // List (get) and delete (post)
-    Route::get('/', [
-        'as'   => 'list_get',
-        'uses' => 'Meal\MealController@getList',
-    ]);
-
-    // Create
-    Route::get('/create', [
-        'as'   => 'create_get',
-        'uses' => 'Meal\MealController@getCreate',
-    ]);
-    Route::post('/create', [
-        'as'   => 'create_post',
-        'uses' => 'Meal\MealController@postCreate',
-    ]);
-
-    // Update
-    Route::get('/update/{id}', [
-        'as' => 'update_get', 'uses' => 'Meal\MealController@getUpdate',
-    ])->where('id', '[0-9]+');
-    Route::post('/update/{id}', [
-        'as' => 'update_post', 'uses' => 'Meal\MealController@postUpdate',
-    ])->where('id', '[0-9]+');
-
-    // Delete
-    Route::get('/delete/{id}', [
-        'as' => 'delete_get', 'uses' => 'Meal\MealController@getDelete',
-    ])->where('id', '[0-9]+');
-});
-
 /**
  * API v0.1 routes
  */
@@ -80,26 +48,17 @@ Route::group(['prefix' => '/api/0.1', 'middleware' => 'cors'], function () {
                     Route::delete('', ['uses' => 'Dish\DishController@destroy']);
                 });
             });
+
+            // User Meals
+            Route::group(['prefix' => '/meals'], function () {
+                // List (get)
+                Route::get('', ['uses' => 'Meal\MealController@index']);
+            });
+
         });
 
         // Password reset link request and reset routes
         Route::post('/passwordreset', ['uses' => 'User\UserController@passwordResetRequest']);
         Route::put('/passwordreset/{token}', ['uses' => 'User\UserController@passwordReset']);
-    });
-
-    // Meals
-    Route::group(['prefix' => 'user/meals', 'middleware' => 'auth', 'as' => 'meal::'], function () {
-        // List (get) and delete (post)
-        Route::get('/', ['uses' => 'Meal\MealController@getList']);
-
-        // Create
-        Route::get('/create', ['uses' => 'Meal\MealController@getCreate']);
-        Route::post('/create', ['uses' => 'Meal\MealController@postCreate']);
-        // Update
-        Route::get('/update/{id}', ['uses' => 'Meal\MealController@getUpdate'])->where('id', '[0-9]+');
-        Route::post('/update/{id}', ['uses' => 'Meal\MealController@postUpdate'])->where('id', '[0-9]+');
-
-        // Delete
-        Route::get('/delete/{id}', ['uses' => 'Meal\MealController@getDelete'])->where('id', '[0-9]+');
     });
 });

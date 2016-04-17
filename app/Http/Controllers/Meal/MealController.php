@@ -14,21 +14,20 @@ class MealController extends Controller
 {
 
 	/**
-	 * List user meals..
+	 * List meals.
 	 *
 	 * @return Response
 	 */
-	public function getList()
+	public function index(Request $request)
 	{
-		$dateTime = new \DateTime();
-		$lastWeekDate = $dateTime->sub(new \DateInterval('P3D'));
+		$results = $request->query('results', 14);
+		$page = $request->query('page', 0) * $results;
 
-		$meals = Meal::where('user_id', Auth::user()->id)
-					 ->where('datetime', '>=', $lastWeekDate)
-					 ->orderBy('datetime', 'DESC')
-					 ->get();
-
-		return view('meal/list', ['meals' => $meals]);
+		return Meal::where('user_id', Auth::user()->id)
+				   ->orderBy('datetime', 'DESC')
+				   ->take($results)
+				   ->skip($page)
+				   ->get();
 	}
 
 	/**
