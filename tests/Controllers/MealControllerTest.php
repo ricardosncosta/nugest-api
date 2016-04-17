@@ -107,4 +107,30 @@ class MealControllerTest extends TestCase
         ]);
     }
 
+    /**
+     * Test meal removal
+     */
+    public function testMealRemoval()
+    {
+        // Setup needed data
+        $user = factory(User::class)->create();
+        $dish = factory(Dish::class)->create(['user_id' => $user->id]);
+        $meal = factory(Meal::class)->create([
+            'user_id' => $user->id,
+            'dish_id' => $dish->id
+        ]);
+
+        // not found, throw 404
+        $this->actingAs($user)
+             ->delete("/api/0.1/users/{user->username}/meals/20")
+             ->seeStatusCode(404);
+
+        // Functionality check
+        $this->actingAs($user)
+             ->delete("/api/0.1/users/{user->username}/meals/{$meal->id}")
+             ->seeStatusCode(410);
+
+        $this->notSeeInDatabase('meals', ['id' => $meal->id]);
+    }
+
 }

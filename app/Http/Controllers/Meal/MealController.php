@@ -93,19 +93,24 @@ class MealController extends Controller
 	}
 
 	/**
-	 * User meal removal ajax processor
+	 * Destroy resource
 	 *
-	 * @return Json response
+	 * @param  Request object $request
+	 * @param  string $username table users username field
+	 * @param  int $dishId dishes table id field
+	 * @return Response object
 	 */
-	public function getDelete(Request $request, $id)
+	public function destroy(Request $request, $username, $mealId)
 	{
 		try {
-			$meal = Meal::findOrFail($id);
+			$meal = Meal::where('id', $mealId)
+						->where('user_id', Auth::user()->id)
+						->firstOrFail();
 			$meal->delete();
 
-			return response()->json(['status' => 'success']);
+			return new Response(null, 410);
 		} catch (ModelNotFoundException $e) {
-			abort(404, 'Item not found.');
+			return new Response('Item not found.', 404);
 		}
 	}
 

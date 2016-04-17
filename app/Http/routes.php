@@ -58,6 +58,7 @@ Route::group(['prefix' => '/api/0.1', 'middleware' => 'cors'], function () {
                 // Update
                 Route::group(['prefix' => '/{mealId}'], function () {
                     Route::put('', ['uses' => 'Meal\MealController@update']);
+                    Route::delete('', ['uses' => 'Meal\MealController@destroy']);
                 });
             });
 
