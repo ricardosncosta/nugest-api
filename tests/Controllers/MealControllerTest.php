@@ -55,4 +55,56 @@ class MealControllerTest extends TestCase
         $this->seeInDatabase('meals', $data);
     }
 
+    /**
+     * Test meal update
+     */
+    public function testMealUpdate()
+    {
+        // Setup needed data
+        $user = factory(User::class)->create();
+        $dishes = factory(Dish::class, 2)->create(['user_id' => $user->id]);
+        $meal = factory(Meal::class)->create([
+            'user_id' => $user->id,
+            'dish_id' => $dishes[0]->id
+        ]);
+
+        // Validation check
+        $data = ['dish_id' => ''];
+        $this->actingAs($user)
+             ->put("/api/0.1/users/{user->username}/meals/{$meal->id}", $data)
+             ->seeJsonEquals(['The dish id field is required.']);
+
+        // not found, 404
+        $data = ['dish_id' => 5];
+        $this->actingAs($user)
+             ->put("/api/0.1/users/{user->username}/meals/20", $data)
+             ->seeJsonEquals(['Error' => 'Meal could not be found.'])
+             ->seeStatusCode(404);
+
+        // Dish not found check
+        $this->actingAs($user)
+             ->put("/api/0.1/users/{user->username}/meals/{$meal->id}", $data)
+             ->seeJsonEquals(['Error' => 'Dish could not be found.'])
+             ->seeStatusCode(404);
+
+        // Functionality check
+        // Obs: Used "(string) $dishes[1]->id" to match returning json data
+        $dateTime = new \DateTime();
+        $data = [
+            'dish_id'  => (string) $dishes[1]->id,
+            'datetime' => $dateTime->format('Y-m-d H:i:s')
+        ];
+        $this->actingAs($user)
+             ->put("/api/0.1/users/{user->username}/meals/{$meal->id}", $data)
+             ->seeJsonContains($data)
+             ->seeStatusCode(200);
+
+        $this->seeInDatabase('meals', [
+            'id'       => $meal->id,
+            'user_id'  => $user->id,
+            'dish_id'  => $data['dish_id'],
+            'datetime' => $data['datetime']
+        ]);
+    }
+
 }

@@ -54,42 +54,42 @@ class MealController extends Controller
 	}
 
 	/**
-	 * User meal update page.
+	 * Update resource
 	 *
-	 * @return Response
+	 * @param  Request $request Request object
+	 * @param  String  $mealId  meals table id field
+	 * @return Response object
 	 */
-	public function getUpdate(Request $request, $id)
+	public function update(Request $request, $username, $mealId)
 	{
-		try {
-			return view('meal/update', [
-				'meal'   => Meal::findOrFail($id),
-				'dishes' => Dish::where('user_id', Auth::user()->id)->get()
-			]);
-		} catch (ModelNotFoundException $e) {
-			abort(404, 'Item not found.');
-		}
-	}
-	/**
-	 * User meal update page data processor..
-	 *
-	 * @return Response
-	 */
-	public function postUpdate(Request $request, $id)
-	{
-        $validator = Validator::make($request->all(), ['dish' => 'required']);
+        $validator = Validator::make($request->all(), ['dish_id' => 'required']);
 		if ($validator->fails()) {
-			return redirect()->route('meal::update_get', ['id' => $id])
-						     ->withErrors($validator);
+			return $validator->errors()->all();
 		} else {
-			$meal = Meal::find($id);
-	        $meal->dish_id = $request->input('dish');
+			// Find meal or throw a 404
+			try {
+				$meal = Meal::where('id', $mealId)
+							->where('user_id', Auth::user()->id)
+							->firstOrFail();
+			} catch (ModelNotFoundException $e) {
+					return new Response(['Error' => 'Meal could not be found.'], 404);
+			}
+
+			// Find dish or throw a 404
+			try {
+				$dish = Dish::where('id', $request->input('dish_id'))
+							->where('user_id', Auth::user()->id)
+							->firstOrFail();
+			} catch (ModelNotFoundException $e) {
+				return new Response(['Error' => 'Dish could not be found.'], 404);
+			}
+
+	        $meal->dish_id = $dish->id;
 	        $meal->datetime = new \DateTime($request->input('datetime'));
 			$meal->save();
 
-			$this->setFlashMessage('success', 'Meal updated.');
+			return new Response($meal, 200);
 		}
-
-		return redirect()->route('meal::list_get');
 	}
 
 	/**
