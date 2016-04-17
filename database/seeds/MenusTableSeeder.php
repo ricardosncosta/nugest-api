@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 
-class MealsTableSeeder extends Seeder
+class MenusTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -12,7 +12,7 @@ class MealsTableSeeder extends Seeder
     public function run()
     {
         // Each line represents a week of dinner & lunch dishes
-        // There's no #4 in last meals, and it appears 6 times through the array
+        // There's no #4 in last menus, and it appears 6 times through the array
         // Dish #4 must be the suggested dish.
         $orderedDishes = [
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
@@ -34,7 +34,7 @@ class MealsTableSeeder extends Seeder
                 $changeDay = true;
             }
 
-            factory(App\Meal::class)->create([
+            factory(App\Menu::class)->create([
                 'user_id'  => 1,
                 'dish_id'  => $orderedDishes[$i],
                 'datetime' => $dateTime,

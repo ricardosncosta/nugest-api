@@ -1,8 +1,8 @@
 @extends('layouts.master')
-@section('title', 'Meal: Create')
-@section('page_title', 'Meal: Create')
+@section('title', 'Menu: Create')
+@section('page_title', 'Menu: Create')
 @section('content')
-<form method="POST" action="{{ route('meal::create_post')}}" class="form-horizontal">
+<form method="POST" action="{{ route('menu::create_post')}}" class="form-horizontal">
     {!! csrf_field() !!}
 
     @if (count($dishes) > 0)

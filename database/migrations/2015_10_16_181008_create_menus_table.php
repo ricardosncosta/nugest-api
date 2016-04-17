@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateMealsTable extends Migration
+class CreateMenusTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,7 +12,7 @@ class CreateMealsTable extends Migration
      */
     public function up()
     {
-        Schema::create('meals', function (Blueprint $table) {
+        Schema::create('menus', function (Blueprint $table) {
             $table->increments('id'); // Default
             $table->integer('user_id')->unsigned()
                   ->foreign('user_id')
@@ -35,6 +35,6 @@ class CreateMealsTable extends Migration
      */
     public function down()
     {
-        Schema::drop('meals');
+        Schema::drop('menus');
     }
 }

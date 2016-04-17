@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call(UsersTableSeeder::class);
         $this->call(DishesTableSeeder::class);
-        $this->call(MealsTableSeeder::class);
+        $this->call(MenusTableSeeder::class);
 
         Model::reguard();
     }

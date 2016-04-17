@@ -49,16 +49,16 @@ Route::group(['prefix' => '/api/0.1', 'middleware' => 'cors'], function () {
                 });
             });
 
-            // User Meals
-            Route::group(['prefix' => '/meals'], function () {
+            // User Menus
+            Route::group(['prefix' => '/menus'], function () {
                 // List (GET) and create (POST)
-                Route::get('', ['uses' => 'Meal\MealController@index']);
-                Route::post('', ['uses' => 'Meal\MealController@store']);
+                Route::get('', ['uses' => 'Menu\MenuController@index']);
+                Route::post('', ['uses' => 'Menu\MenuController@store']);
 
                 // Update
-                Route::group(['prefix' => '/{mealId}'], function () {
-                    Route::put('', ['uses' => 'Meal\MealController@update']);
-                    Route::delete('', ['uses' => 'Meal\MealController@destroy']);
+                Route::group(['prefix' => '/{menuId}'], function () {
+                    Route::put('', ['uses' => 'Menu\MenuController@update']);
+                    Route::delete('', ['uses' => 'Menu\MenuController@destroy']);
                 });
             });
 

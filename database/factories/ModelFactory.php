@@ -42,7 +42,7 @@ $factory->define(App\Dish::class, function (Faker\Generator $faker) {
     ];
 });
 
-$factory->define(App\Meal::class, function (Faker\Generator $faker) {
+$factory->define(App\Menu::class, function (Faker\Generator $faker) {
     return [
         'datetime' => new DateTime(),
     ];

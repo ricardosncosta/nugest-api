@@ -2,12 +2,12 @@
 
 use App\User;
 use App\Dish;
-use App\Meal;
+use App\Menu;
 use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 
-class MealTest extends TestCase
+class MenuTest extends TestCase
 {
     use DatabaseMigrations;
 
@@ -25,20 +25,20 @@ class MealTest extends TestCase
         Artisan::call('migrate');
         Artisan::call('db:seed', array('--class' => 'UsersTableSeeder'));
         Artisan::call('db:seed', array('--class' => 'DishesTableSeeder'));
-        Artisan::call('db:seed', array('--class' => 'MealsTableSeeder'));
+        Artisan::call('db:seed', array('--class' => 'MenusTableSeeder'));
     }
 
     /**
-     * Test getLastMeals method
+     * Test getLastMenus method
      *
      * @return void
      */
-    public function testGetLastMealsMethod()
+    public function testGetLastMenusMethod()
     {
         $user = App\User::find(1);
 
-        $mealModel = new Meal();
-        $this->assertCount(60, $mealModel->getLastMeals($user));
+        $menuModel = new Menu();
+        $this->assertCount(60, $menuModel->getLastMenus($user));
     }
 
     /**
@@ -50,8 +50,8 @@ class MealTest extends TestCase
     {
         $user = User::find(1);
 
-        $mealModel = new Meal();
-        $recommendedDish = $mealModel->getRecommendation($user);
+        $menuModel = new Menu();
+        $recommendedDish = $menuModel->getRecommendation($user);
         $this->assertEquals(4, $recommendedDish->id);
     }
 
@@ -65,8 +65,8 @@ class MealTest extends TestCase
         // Create a new user, without any related dishes
         $user = factory(User::class)->create();
 
-        $mealModel = new Meal();
-        $recommendedDish = $mealModel->getRecommendation($user);
+        $menuModel = new Menu();
+        $recommendedDish = $menuModel->getRecommendation($user);
         $this->assertTrue($recommendedDish == null);
     }
 
@@ -77,9 +77,9 @@ class MealTest extends TestCase
      */
     public function testGetRecommendationMethodSignatureThrowsErrorExceptionWithNonIntValue()
     {
-        $mealModel = new Meal();
+        $menuModel = new Menu();
 
         $this->setExpectedException('ErrorException');
-        $recommendedDish = $mealModel->getRecommendation($user, '12');
+        $recommendedDish = $menuModel->getRecommendation($user, '12');
     }
 }

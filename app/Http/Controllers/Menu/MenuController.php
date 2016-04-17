@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Meal;
+namespace App\Http\Controllers\Menu;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -8,14 +8,14 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Http\Controllers\Controller;
 use Auth;
 use Validator;
-use App\Meal;
+use App\Menu;
 use App\Dish;
 
-class MealController extends Controller
+class MenuController extends Controller
 {
 
 	/**
-	 * List meals.
+	 * List menus.
 	 *
 	 * @return Response
 	 */
@@ -24,7 +24,7 @@ class MealController extends Controller
 		$results = $request->query('results', 14);
 		$page = $request->query('page', 0) * $results;
 
-		return Meal::where('user_id', Auth::user()->id)
+		return Menu::where('user_id', Auth::user()->id)
 				   ->orderBy('datetime', 'DESC')
 				   ->take($results)
 				   ->skip($page)
@@ -43,13 +43,13 @@ class MealController extends Controller
 		if ($validator->fails()) {
 			return $validator->errors()->all();
 		} else {
-	        $meal = Meal::create([
+	        $menu = Menu::create([
 	            'user_id'  => Auth::user()->id,
 	            'dish_id'  => $request->input('dish_id'),
 	            'datetime' => new \DateTime($request->input('datetime')),
 	        ]);
 
-			return new Response($meal, 201);
+			return new Response($menu, 201);
 		}
 	}
 
@@ -57,22 +57,22 @@ class MealController extends Controller
 	 * Update resource
 	 *
 	 * @param  Request $request Request object
-	 * @param  String  $mealId  meals table id field
+	 * @param  String  $menuId  menus table id field
 	 * @return Response object
 	 */
-	public function update(Request $request, $username, $mealId)
+	public function update(Request $request, $username, $menuId)
 	{
         $validator = Validator::make($request->all(), ['dish_id' => 'required']);
 		if ($validator->fails()) {
 			return $validator->errors()->all();
 		} else {
-			// Find meal or throw a 404
+			// Find menu or throw a 404
 			try {
-				$meal = Meal::where('id', $mealId)
+				$menu = Menu::where('id', $menuId)
 							->where('user_id', Auth::user()->id)
 							->firstOrFail();
 			} catch (ModelNotFoundException $e) {
-					return new Response(['Error' => 'Meal could not be found.'], 404);
+					return new Response(['Error' => 'Menu could not be found.'], 404);
 			}
 
 			// Find dish or throw a 404
@@ -84,11 +84,11 @@ class MealController extends Controller
 				return new Response(['Error' => 'Dish could not be found.'], 404);
 			}
 
-	        $meal->dish_id = $dish->id;
-	        $meal->datetime = new \DateTime($request->input('datetime'));
-			$meal->save();
+	        $menu->dish_id = $dish->id;
+	        $menu->datetime = new \DateTime($request->input('datetime'));
+			$menu->save();
 
-			return new Response($meal, 200);
+			return new Response($menu, 200);
 		}
 	}
 
@@ -100,13 +100,13 @@ class MealController extends Controller
 	 * @param  int $dishId dishes table id field
 	 * @return Response object
 	 */
-	public function destroy(Request $request, $username, $mealId)
+	public function destroy(Request $request, $username, $menuId)
 	{
 		try {
-			$meal = Meal::where('id', $mealId)
+			$menu = Menu::where('id', $menuId)
 						->where('user_id', Auth::user()->id)
 						->firstOrFail();
-			$meal->delete();
+			$menu->delete();
 
 			return new Response(null, 410);
 		} catch (ModelNotFoundException $e) {
