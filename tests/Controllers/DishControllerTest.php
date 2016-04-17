@@ -71,19 +71,19 @@ class DishControllerTest extends TestCase
         $user = factory(User::class)->create();
         $dish = factory(Dish::class)->create(['user_id' => $user->id]);
 
-        // not found, 404
-        $this->actingAs($user)
-             ->put("/api/0.1/users/{user->username}/dishes/20")
-             ->seeStatusCode(404);
-
         // Validation check
         $data = ['name' => 'as'];
         $this->actingAs($user)
              ->put("/api/0.1/users/{user->username}/dishes/{$dish->id}", $data)
              ->seeJsonEquals(['The name must be at least 3 characters.']);
 
-        // Functionality check
+        // Not found, 404
         $data = ['name' => 'The most beautiful dish name ever', 'calories' => 200];
+        $this->actingAs($user)
+             ->put("/api/0.1/users/{user->username}/dishes/20", $data)
+             ->seeStatusCode(404);
+
+        // Functionality check
         $this->actingAs($user)
              ->put("/api/0.1/users/{user->username}/dishes/{$dish->id}", $data)
              ->seeJsonContains($data)

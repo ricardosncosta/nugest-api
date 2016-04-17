@@ -60,15 +60,6 @@ class DishController extends Controller
 	 */
 	public function update(Request $request, $username, $dishId)
 	{
-		// Get dish or 404
-		try {
-			$dish = Dish::where('id', $dishId)
-						->where('user_id', Auth::user()->id)
-						->firstOrFail();
-		} catch (ModelNotFoundException $e) {
-			return new Response('Item not found.', 404);
-		}
-
 		// Validate data
         $validator = Validator::make($request->all(), [
             'name'     => 'required|min:3|max:255',
@@ -78,6 +69,15 @@ class DishController extends Controller
 		if ($validator->fails()) {
 			return $validator->errors()->all();
 		} else {
+			// Get dish or 404
+			try {
+				$dish = Dish::where('id', $dishId)
+							->where('user_id', Auth::user()->id)
+							->firstOrFail();
+			} catch (ModelNotFoundException $e) {
+				return new Response('Item not found.', 404);
+			}
+
 	        $dish->name = $request->input('name');
 	    	$dish->calories = $request->input('calories', null);
 			$dish->save();
