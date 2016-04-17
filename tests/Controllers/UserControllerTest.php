@@ -109,12 +109,14 @@ class UserControllerTest extends TestCase
 		 	'last_name'  => 'Doe',
 		];
         $this->actingAs($user)
-             ->put("/api/0.1/users/{$user->username}", $data);
+             ->put("/api/0.1/users/{$user->username}", $data)
+             ->seeJsonContains($user->toArray())
+             ->seeStatusCode(200);
 
         $this->seeInDatabase('users', [
             'username'   => $user->username,
             'first_name' => $data['first_name'],
-            'last_name'  =>  $data['last_name'],
+            'last_name'  => $data['last_name'],
         ]);
     }
 

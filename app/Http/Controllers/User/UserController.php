@@ -109,7 +109,7 @@ class UserController extends Controller
 			$user->save();
 		}
 
-		return new Response(null, 200);
+		return new Response($user, 200);
 	}
 
 	/**
