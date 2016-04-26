@@ -17,32 +17,6 @@ class UserController extends Controller
 {
 
 	/**
-	 * Signs user into the system
-	 * @param  Request $request Request object
-	 * @return Response object
-	 */
-	public function signin(Request $request)
-	{
-		$credentials = $request->only('email', 'password');
-        $validator = Validator::make($credentials, [
-            'email'    => 'required',
-            'password' => 'required',
-        ]);
-
-		if ($validator->fails()) {
-			return $validator->errors()->all();
-		} else {
-			$remember = $request->input('remember_me', null);
-
-			if (Auth::attempt($credentials, $remember)) {
-				return Auth::user();
-			} else {
-				return new Response(['Wrong credentials'], 400);
-			}
-		}
-	}
-
-	/**
 	 * Creates user account
 	 * @param  Request $request Request object
 	 * @return Response object
