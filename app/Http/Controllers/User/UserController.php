@@ -32,7 +32,7 @@ class UserController extends Controller
 		]);
 
 		if ($validator->fails()) {
-			return $validator->errors()->all();
+			return response()->json(['error' => $validator->errors()->all()], 422);
 		} else {
 			$user = User::create([
 				'username'   => $request->input('username'),
@@ -57,7 +57,7 @@ class UserController extends Controller
 				}
 			);
 		}
-		return new Response(null, 201);
+		return response()->json(['success' => 'Account created'], 201);
 	}
 
 	/**
@@ -75,15 +75,15 @@ class UserController extends Controller
 		]);
 
 		if ($validator->fails()) {
-			return $validator->errors()->all();
+			return response()->json(['error' => $validator->errors()->all()], 422);
 		} else {
-			$user = Auth::User();
+			$user = Auth::user();
 			$user->first_name = $request->input('first_name');
 			$user->last_name  = $request->input('last_name');
 			$user->save();
 		}
 
-		return new Response($user, 200);
+		return response()->json($user, 200);
 	}
 
 	/**
@@ -101,7 +101,7 @@ class UserController extends Controller
 		));
 
 		if ($validator->fails()) {
-			return $validator->errors()->all();
+			return response()->json(['error' => $validator->errors()->all()], 422);
 		} else {
 			// Change password
 			$user = Auth::user();
@@ -109,7 +109,7 @@ class UserController extends Controller
 			$user->save();
 		}
 
-		return new Response(null, 200);
+		return response()->json(['success' => 'Password updated.'], 200);
 	}
 
 	/**
@@ -126,7 +126,7 @@ class UserController extends Controller
 	    ));
 
 		if ($validator->fails()) {
-			return $validator->errors()->all();
+			return response()->json(['error' => $validator->errors()->all()], 422);
 		} else {
 			$user = User::where('username', $username)->first();
 			if ($user instanceof User) {
@@ -143,12 +143,12 @@ class UserController extends Controller
 								->subject('New email address confirmation');
 					}
 				);
+
+				return response()->json(['success' => 'Email updated.'], 200);
 			} else {
-				return new Response(null, 404);
+				return response()->json(['error' => 'User not found.'], 404);
 			}
 		}
-
-		return new Response(null, 200);
 	}
 
 	/**
@@ -182,12 +182,12 @@ class UserController extends Controller
 				$emailChg->confirmed = true;
 				$emailChg->save();
 
-				return new Response(['Your email is verified']);
+				return response()->json(['success' => 'Email verified.']);
 			} else {
-				return new Response(['Your request is no longer valid. Please contact us or submit a new one']);
+				return response()->json(['error' => 'Request no longer valid. Please contact us or submit a new one.'], 410);
 			}
 		} else {
-			return new Response(['We could not confirm your email address. Please try again.']);
+			return response()->json(['error' => 'We could not confirm your email address. Please try again.'], 400);
 		}
 	}
 
@@ -222,7 +222,7 @@ class UserController extends Controller
 			);
 		}
 
-		return new Response(null, 200);
+		return response()->json(['success' => 'Requested password reset.'], 200);
 	}
 
 	/**
@@ -244,7 +244,7 @@ class UserController extends Controller
 			));
 
 			if ($validator->fails()) {
-				return $validator->errors()->all();
+				return response()->json(['error' => $validator->errors()->all()], 422);
 			} else {
 				$limitDateTime = new \DateTime();
 				$limitDateTime->sub(new \DateInterval('P7D'));
@@ -255,14 +255,14 @@ class UserController extends Controller
 					$user->password = bcrypt($request->input('password'));
 					$user->save();
 
-					return new Response(null, 200);
+					return response()->json(['success' => 'Password reset'], 200);
 				} else {
-					return new Response(['Your request is no longer valid. Please contact us or submit a new one.'], 410);
+					return response()->json(['error' => 'Your request is no longer valid. Please contact us or submit a new one.'], 410);
 				}
 			}
 
 		} else {
-			return new Response(['We could not confirm your request. Please try again.'], 404);
+			return response()->json(['error' => 'We could not confirm your request. Please try again.'], 400);
 		}
 	}
 
@@ -279,7 +279,7 @@ class UserController extends Controller
 	    ));
 
 		if ($validator->fails()) {
-			return $validator->errors()->all();
+			return response()->json(['error' => $validator->errors()->all()], 422);
 		} else {
 			Auth::user()->delete();
 			return new Response(null, 410);

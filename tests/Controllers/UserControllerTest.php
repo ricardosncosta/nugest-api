@@ -25,14 +25,16 @@ class UserControllerTest extends TestCase
         ];
 
         $this->post('/api/0.1/users', $data)
-             ->seeJsonEquals([
-                'The username must be at least 2 characters.',
-                'The email must be a valid email address.',
-                'The password confirmation does not match.',
-                'The password must be at least 6 characters.',
-                'The first name must be at least 3 characters.',
-                'The last name field is required.',
-		    ]);
+             ->seeJsonEquals(
+                ['error' => [
+                    'The username must be at least 2 characters.',
+                    'The email must be a valid email address.',
+                    'The password confirmation does not match.',
+                    'The password must be at least 6 characters.',
+                    'The first name must be at least 3 characters.',
+                    'The last name field is required.',]
+                ])
+             ->seeStatusCode(422);
 
         $this->notSeeInDatabase('users', ['username' => $data['username']]);
     }
@@ -51,6 +53,7 @@ class UserControllerTest extends TestCase
 		 	'password_confirmation' => '123456',
 		];
         $this->post('/api/0.1/users', $data)
+             ->seeJsonEquals(['success' => 'Account created'])
              ->seeStatusCode(201);
 
         $this->seeInDatabase('users', ['username' => $data['username']]);
@@ -77,10 +80,12 @@ class UserControllerTest extends TestCase
 		];
         $this->actingAs($user)
              ->put("/api/0.1/users/{$user->username}", $data)
-             ->seeJsonEquals([
-                'The first name must be at least 3 characters.',
-                'The last name must be at least 3 characters.',
-             ]);
+             ->seeJsonEquals(
+                 ['error' => [
+                     'The first name must be at least 3 characters.',
+                     'The last name must be at least 3 characters.',
+                 ]])
+             ->seeStatusCode(422);
 
         $this->notSeeInDatabase('users', [
             'username'   => $user->username,
@@ -137,17 +142,20 @@ class UserControllerTest extends TestCase
         // Wrong token
         $wrongUrl = "/api/0.1/users/confirm/{$emailChange->email}/WrongEmailToken";
         $this->put($wrongUrl)
-             ->seeJsonEquals(['We could not confirm your email address. Please try again.']);
+             ->seeJsonEquals(['error' => 'We could not confirm your email address. Please try again.'])
+             ->seeStatusCode(400);
 
         // Wrong email
         $wrongUrl = "/api/0.1/users/confirm/somerandom@email.com/{$emailChange->token}";
         $this->put($wrongUrl)
-             ->seeJsonEquals(['We could not confirm your email address. Please try again.']);
+             ->seeJsonEquals(['error' => 'We could not confirm your email address. Please try again.'])
+             ->seeStatusCode(400);
 
         // Test confirmation works
         $rightUrl = "/api/0.1/users/confirm/{$emailChange->email}/{$emailChange->token}";
         $this->put($rightUrl)
-             ->seeJsonEquals(['Your email is verified']);
+             ->seeJsonEquals(['success' => 'Email verified.'])
+             ->seeStatusCode(200);
 
         $this->seeInDatabase('users_email_change', [
             'email'     => $user->email,
@@ -177,7 +185,8 @@ class UserControllerTest extends TestCase
         // Test confirmation works
         $rightUrl = "/api/0.1/users/confirm/{$emailChange->email}/{$emailChange->token}";
         $this->put($rightUrl)
-             ->seeJsonEquals(['Your request is no longer valid. Please contact us or submit a new one']);
+             ->seeJsonEquals(['error' => 'Request no longer valid. Please contact us or submit a new one.'])
+             ->seeStatusCode(410);
 
         $expiredDate = new \DateTime();
         $expiredDate->sub(new \DateInterval('P1D'));
@@ -187,7 +196,8 @@ class UserControllerTest extends TestCase
         // Test confirmation works
         $rightUrl = "/api/0.1/users/confirm/{$emailChange->email}/{$emailChange->token}";
         $this->put($rightUrl)
-             ->seeJsonEquals(['Your email is verified']);
+             ->seeJsonEquals(['success' => 'Email verified.'])
+             ->seeStatusCode(200);
 
     }
 
@@ -212,11 +222,13 @@ class UserControllerTest extends TestCase
         // Test validation and make sure password hasn't changed
         $this->actingAs($user)
              ->put("/api/0.1/users/{$user->username}/password", $data)
-             ->seeJsonEquals([
-                 'The password is incorrect.',
-                 'The password must be at least 6 characters.',
-                 'The password confirmation does not match.',
-             ]);
+             ->seeJsonEquals(
+                 ['error' => [
+                     'The password is incorrect.',
+                     'The password must be at least 6 characters.',
+                     'The password confirmation does not match.',
+                 ]])
+             ->seeStatusCode(422);
 
         $user = User::find($user->id);
         $this->assertTrue(Hash::check($defaultPassword, $user->password));
@@ -229,6 +241,7 @@ class UserControllerTest extends TestCase
         ];
         $this->actingAs($user)
              ->put("/api/0.1/users/{$user->username}/password", $data)
+             ->seeJsonEquals(['success' => 'Password updated.'])
              ->seeStatusCode(200);
 
         $user = User::find($user->id);
@@ -262,7 +275,8 @@ class UserControllerTest extends TestCase
 
         // Test reset password with wrong token
         $this->put("/api/0.1/users/passwordreset/somewrongtoken")
-             ->seeStatusCode(404);
+             ->seeJsonEquals(['error' => 'We could not confirm your request. Please try again.'])
+             ->seeStatusCode(400);
 
         // Test reset password validations
         $data = [
@@ -270,7 +284,7 @@ class UserControllerTest extends TestCase
             'password_confirmation' => '11111'
         ];
         $this->put("/api/0.1/users/passwordreset/{$pwReset->token}", $data)
-             ->seeStatusCode(200);
+             ->seeStatusCode(422);
 
         // Test reset password token and expired date
         $expiredDate = new \DateTime();
@@ -313,7 +327,8 @@ class UserControllerTest extends TestCase
         $data = ['current_password' => 'WrongPassword', 'confirm' => false];
         $this->actingAs($user)
              ->delete("/api/0.1/users/{$user->username}", $data)
-             ->seeJsonEquals(['The password is incorrect.']);
+             ->seeJsonEquals(['error' => ['The password is incorrect.']])
+             ->seeStatusCode(422);
 
         // user should be visible and deleted_at should stay null
         $this->seeInDatabase('users', ['id' => $user->id, 'deleted_at' => null]);
