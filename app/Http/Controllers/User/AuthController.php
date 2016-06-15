@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Auth;
+use JWTAuth;
 use Validator;
 use Mail;
 use Redirect;
@@ -32,11 +33,9 @@ class AuthController extends Controller
 		if ($validator->fails()) {
 			return response()->json(['error' => $validator->errors()->all()], 422);
 		} else {
-			$remember = $request->input('remember_me', null);
-
-			if (Auth::attempt($credentials, $remember)) {
+			if (Auth::attempt($credentials)) {
 				$user = Auth::user();
-				$token = \JWTAuth::fromUser($user);
+				$token = JWTAuth::fromUser($user);
 
 				return response()->json(['user' => $user, 'token' => $token], 200);
 			} else {

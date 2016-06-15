@@ -53,7 +53,7 @@ class UserControllerTest extends TestCase
 		 	'password_confirmation' => '123456',
 		];
         $this->post('/api/0.1/users', $data)
-             ->seeJsonEquals(['success' => 'Account created'])
+             ->seeJsonEquals(['success' => 'Account created.'])
              ->seeStatusCode(201);
 
         $this->seeInDatabase('users', ['username' => $data['username']]);

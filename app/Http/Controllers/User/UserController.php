@@ -57,7 +57,7 @@ class UserController extends Controller
 				}
 			);
 		}
-		return response()->json(['success' => 'Account created'], 201);
+		return response()->json(['success' => 'Account created.'], 201);
 	}
 
 	/**
