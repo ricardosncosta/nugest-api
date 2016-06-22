@@ -6,8 +6,9 @@ use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Tymon\JWTAuth\Contracts\JWTSubject as AuthenticatableUserContract;
 
-class User extends Model implements AuthenticatableContract
+class User extends Model implements AuthenticatableContract, AuthenticatableUserContract
 {
     use Authenticatable, SoftDeletes;
 
@@ -38,4 +39,20 @@ class User extends Model implements AuthenticatableContract
      * @var array
      */
     protected $hidden = ['password'];
+
+        /**
+     * @return mixed
+     */
+    public function getJWTIdentifier()
+    {
+        return $this->getKey(); // Eloquent model method
+    }
+
+    /**
+     * @return array
+     */
+    public function getJWTCustomClaims()
+    {
+        return [];
+    }
 }

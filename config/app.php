@@ -149,6 +149,9 @@ return [
 
         # Custom Service Providers
         App\Providers\PasswordValidationServiceProvider::class,
+
+        # Third party
+        Tymon\JWTAuth\Providers\LaravelServiceProvider::class
     ],
 
     /*
@@ -198,6 +201,8 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View'      => Illuminate\Support\Facades\View::class,
 
+        // Third party
+        'JWTAuth'   => Tymon\JWTAuth\Facades\JWTAuth::class,
     ],
 
 ];

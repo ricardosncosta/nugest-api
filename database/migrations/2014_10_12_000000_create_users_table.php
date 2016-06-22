@@ -19,7 +19,6 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique(); // Default
             $table->string('first_name');
             $table->string('last_name');
-            $table->string('api_token', 60)->unique()->default(str_random(60));
             $table->timestamps();
             $table->softDeletes();
         });

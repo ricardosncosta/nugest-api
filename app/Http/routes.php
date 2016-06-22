@@ -30,14 +30,14 @@ Route::group(['prefix' => '/api/0.1', 'middleware' => 'cors'], function () {
         ]);
 
         // Authenticated users
-        Route::group(['prefix' => '/{username}'], function () {
+        Route::group(['prefix' => '/{username}', 'middleware' => 'auth'], function () {
             // User
             Route::put('', ['uses' => 'User\UserController@update']);
             Route::put('/email', ['uses' => 'User\UserController@updateEmail']);
             Route::put('/password', ['uses' => 'User\UserController@updatePassword']);
             Route::delete('', ['uses' => 'User\UserController@destroy']);
 
-            // User dishes
+            // Dishes
             Route::group(['prefix' => '/dishes'], function () {
                 // List and create
                 Route::get('', ['uses' => 'Dish\DishController@index']);
@@ -50,7 +50,7 @@ Route::group(['prefix' => '/api/0.1', 'middleware' => 'cors'], function () {
                 });
             });
 
-            // User Menus
+            // Menus
             Route::group(['prefix' => '/menus'], function () {
                 // List (GET) and create (POST)
                 Route::get('', ['uses' => 'Menu\MenuController@index']);
