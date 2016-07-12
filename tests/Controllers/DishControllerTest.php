@@ -22,7 +22,7 @@ class DishControllerTest extends TestCase
             $dishes[] = [
                 'calories'   => (string) $dish->calories,
                 'created_at' => $dish->created_at->format('Y-m-d H:i:s'),
-                'id'         => (string) $dish->id,
+                'id'         => (int) $dish->id,
                 'name'       => $dish->name,
                 'updated_at' => $dish->updated_at->format('Y-m-d H:i:s'),
                 'user_id'    => (string) $dish->user_id,
@@ -46,7 +46,7 @@ class DishControllerTest extends TestCase
         // Test validation
         $data = ['name' => 'as'];
         $this->actingAs($user)
-             ->post("/api/0.1/users/{user->username}/dishes", $data)
+             ->post("/api/0.1/users/{$user->username}/dishes", $data)
              ->seeJsonEquals(['The name must be at least 3 characters.']);
 
         // Test functionality
@@ -74,18 +74,18 @@ class DishControllerTest extends TestCase
         // Validation check
         $data = ['name' => 'as'];
         $this->actingAs($user)
-             ->put("/api/0.1/users/{user->username}/dishes/{$dish->id}", $data)
+             ->put("/api/0.1/users/{$user->username}/dishes/{$dish->id}", $data)
              ->seeJsonEquals(['The name must be at least 3 characters.']);
 
         // Not found, 404
         $data = ['name' => 'The most beautiful dish name ever', 'calories' => 200];
         $this->actingAs($user)
-             ->put("/api/0.1/users/{user->username}/dishes/20", $data)
+             ->put("/api/0.1/users/{$user->username}/dishes/20", $data)
              ->seeStatusCode(404);
 
         // Functionality check
         $this->actingAs($user)
-             ->put("/api/0.1/users/{user->username}/dishes/{$dish->id}", $data)
+             ->put("/api/0.1/users/{$user->username}/dishes/{$dish->id}", $data)
              ->seeJsonContains($data)
              ->seeStatusCode(200);
 
@@ -107,12 +107,12 @@ class DishControllerTest extends TestCase
 
         // not found, throw 404
         $this->actingAs($user)
-             ->delete("/api/0.1/users/{user->username}/dishes/20")
+             ->delete("/api/0.1/users/{$user->username}/dishes/20")
              ->seeStatusCode(404);
 
         // Functionality check
         $this->actingAs($user)
-             ->delete("/api/0.1/users/{user->username}/dishes/{$dish->id}")
+             ->delete("/api/0.1/users/{$user->username}/dishes/{$dish->id}")
              ->seeStatusCode(410);
 
         $this->notSeeInDatabase('dishes', ['id' => $dish->id]);

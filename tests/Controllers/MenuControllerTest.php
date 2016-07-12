@@ -89,7 +89,7 @@ class MenuControllerTest extends TestCase
         // Obs: Used "(string) $dishes[1]->id" to match returning json data
         $dateTime = new \DateTime();
         $data = [
-            'dish_id'  => (string) $dishes[1]->id,
+            'dish_id'  => (int) $dishes[1]->id,
             'datetime' => $dateTime->format('Y-m-d H:i:s')
         ];
         $this->actingAs($user)
