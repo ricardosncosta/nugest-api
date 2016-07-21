@@ -50,7 +50,11 @@ class UserController extends Controller
 			$emailChange->save();
 
 			// Confirm email address
-			Mail::send('emails/user/register', array('emailChange' => $emailChange),
+			Mail::send('emails/user/register',
+				array(
+					'user'        => $user,
+					'emailChange' => $emailChange
+				),
 				function($message) use ($user) {
 					$message->to($user->email, $user->first_name)
 					->subject('Email address confirmation');

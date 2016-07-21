@@ -9,5 +9,10 @@
 		<div>
 			@yield('content')
 		</div>
+
+		<div>
+			Sincerely,<br />
+			The team
+		</div>
 	</body>
 </html>
