@@ -15,8 +15,8 @@
  * API v0.1 routes
  */
 Route::group(['prefix' => '/api/0.1', 'middleware' => 'cors'], function () {
-    Route::post('/signin', ['uses' => 'User\AuthController@signin']);
-    //Route::get('/signout', ['uses' => 'User\AuthController@signout']);
+    Route::post('/auth/signin', ['uses' => 'User\AuthController@signIn']);
+    Route::post('/auth/restore', ['uses' => 'User\AuthController@restore']);
 
     // Users
     Route::group(['prefix' => '/users'], function () {

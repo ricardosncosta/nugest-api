@@ -22,7 +22,7 @@ class AuthController extends Controller
 	 * @param  Request $request Request object
 	 * @return Response object
 	 */
-	public function signin(Request $request)
+	public function signIn(Request $request)
 	{
 		$credentials = $request->only('email', 'password');
         $validator = Validator::make($credentials, [
@@ -42,5 +42,30 @@ class AuthController extends Controller
 				return response()->json(['error' => 'Wrong credentials'], 400);
 			}
 		}
+	}
+
+	/**
+	 * Restore user session
+	 * @param  Request $request Request object
+	 * @return Response object
+	 */
+	public function restore(Request $request)
+	{
+		$token = $request->get('token', null);
+
+	    try {
+	        if (!$user = JWTAuth::parseToken($request->get('token'))->authenticate()) {
+	            return response()->json(['error' => 'User not found'], 404);
+	        }
+	    } catch (Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
+	        return response()->json(['error' => 'Token Expired'], $e->getStatusCode());
+	    } catch (Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+	        return response()->json(['error' => 'Token Invalid'], $e->getStatusCode());
+	    } catch (Tymon\JWTAuth\Exceptions\JWTException $e) {
+	        return response()->json(['error' => 'Token Absent'], $e->getStatusCode());
+	    }
+
+	    // the token is valid and we have found the user via the sub claim
+		return response()->json(['user' => $user, 'token' => $token], 200);
 	}
 }
