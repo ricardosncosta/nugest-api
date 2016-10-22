@@ -23,11 +23,13 @@ class DishController extends Controller
 		$results = $request->query('results', 15);
 		$page = $request->query('page', 0) * $results;
 
-		return Dish::where('user_id', Auth::user()->id)
-				   ->orderBy('created_at', 'desc')
-				   ->take($results)
-				   ->skip($page)
-				   ->get();
+		$dishes = Dish::where('user_id', Auth::user()->id)
+				  ->orderBy('created_at', 'desc')
+				  ->take($results)
+				  ->skip($page)
+				  ->get();
+
+		return response()->json($dishes, 200);
 	}
 
 	/**
