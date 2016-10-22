@@ -12,11 +12,7 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $middleware = [
-        \Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
-        \App\Http\Middleware\EncryptCookies::class,
-        \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
-        \Illuminate\Session\Middleware\StartSession::class,
-        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+        'cors' => \App\Http\Middleware\Cors::class,
     ];
 
     /**
@@ -25,9 +21,13 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $routeMiddleware = [
-        'cors'        => \App\Http\Middleware\Cors::class,
-        'guest'       => \App\Http\Middleware\RedirectIfAuthenticated::class,
-        'auth'        => \App\Http\Middleware\Authenticate::class,
-        //'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+        'auth' => \App\Http\Middleware\Authenticate::class,
     ];
+
+    /**
+     * The application's route middleware groups.
+     *
+     * @var array
+     */
+    protected $middlewareGroups = [];
 }

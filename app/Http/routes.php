@@ -14,7 +14,7 @@
 /**
  * API v0.1 routes
  */
-Route::group(['prefix' => '/api/0.1', 'middleware' => 'cors'], function () {
+Route::group(['prefix' => '/api/0.1'], function () {
     Route::post('/auth/signin', ['uses' => 'User\AuthController@signIn']);
     Route::post('/auth/restore', ['uses' => 'User\AuthController@restore']);
 
