@@ -108,7 +108,7 @@ class DishController extends Controller
 						->where('user_id', Auth::user()->id)
 						->firstOrFail();
 			$dish->delete();
-			return new Response(null, 410);
+			return new Response($dish, 200);
 		} catch (ModelNotFoundException $e) {
 			return new Response('Item not found.', 404);
 		}
